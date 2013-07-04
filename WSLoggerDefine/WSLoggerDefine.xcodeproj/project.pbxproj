@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		0D4A6178178425A400E89B30 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6177178425A400E89B30 /* main.c */; };
 		0D4A617A178425A400E89B30 /* WSLoggerDefine.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */; };
-		0D4A6182178431FE00E89B30 /* wslogger.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6181178431FE00E89B30 /* wslogger.c */; };
+		0D4A6182178431FE00E89B30 /* WSLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6181178431FE00E89B30 /* WSLogModule.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,8 +29,8 @@
 		0D4A6174178425A400E89B30 /* WSLoggerDefine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = WSLoggerDefine; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D4A6177178425A400E89B30 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = WSLoggerDefine.1; sourceTree = "<group>"; };
-		0D4A6180178425CF00E89B30 /* wslogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wslogger.h; sourceTree = "<group>"; };
-		0D4A6181178431FE00E89B30 /* wslogger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wslogger.c; sourceTree = "<group>"; };
+		0D4A6180178425CF00E89B30 /* WSLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSLogModule.h; sourceTree = "<group>"; };
+		0D4A6181178431FE00E89B30 /* WSLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WSLogModule.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,8 +64,8 @@
 			isa = PBXGroup;
 			children = (
 				0D4A6177178425A400E89B30 /* main.c */,
-				0D4A6180178425CF00E89B30 /* wslogger.h */,
-				0D4A6181178431FE00E89B30 /* wslogger.c */,
+				0D4A6180178425CF00E89B30 /* WSLogModule.h */,
+				0D4A6181178431FE00E89B30 /* WSLogModule.c */,
 				0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */,
 			);
 			path = WSLoggerDefine;
@@ -123,7 +123,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D4A6178178425A400E89B30 /* main.c in Sources */,
-				0D4A6182178431FE00E89B30 /* wslogger.c in Sources */,
+				0D4A6182178431FE00E89B30 /* WSLogModule.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,6 +220,7 @@
 				0D4A617F178425A400E89B30 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

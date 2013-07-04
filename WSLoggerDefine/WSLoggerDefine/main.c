@@ -7,7 +7,7 @@
 //
 #include <stdio.h>
 #include <unistd.h>
-#include "wslogger.h"
+#include "WSLogModule.h"
 int main(int argc, const char * argv[])
 {
     // insert code here...
@@ -15,7 +15,9 @@ int main(int argc, const char * argv[])
     getcwd(dir, sizeof(dir));
     printf("%s\n", dir);
     printf("Hello, World!\n");
-    WSLoggerOpen("TestApp", WSLOG_DEBUG_DISABLE);
+    WSLogOpen("TestApp");
+    printf("%s\n", dir);
+    printf("Hello, World!\n");
     return 0;
 }
 
