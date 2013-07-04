@@ -44,7 +44,7 @@ static FILE *logFilePointers[WSLOG_FILE_INDEX_NUM];
 static char *logFilePaths[WSLOG_FILE_INDEX_NUM];
 static char *logFileBuffer[WSLOG_FILE_INDEX_NUM];
 
-int getLogInfoByIndex(WSLogFileIndex index)
+WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
 {
     const char *fileSuffix = WSLogFileSuffix[index];
     char *tarfile = nextStoreLogFileName[index];
@@ -233,12 +233,12 @@ WSLogRetValue WSLogOpen(char *appName)
 #endif
 }
 
-int WSLogWrite(WSLogLevel level, const char *fmt, ...)
+WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
 {
     
 }
 
-int WSLoggerClose(void)
+WSLogRetValue WSLoggerClose(void)
 {
     
 }

@@ -69,9 +69,9 @@ typedef enum WSLogRetValue {
  */
 WSLogRetValue WSLogOpen(char *appName);
 
-int WSLogWrite(WSLogLevel level, const char *fmt, ...);
+WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...);
 
-int WSLogFlush(void);
+WSLogRetValue WSLogFlush(void);
 
 WSLogRetValue WSLogClose(void);
 
