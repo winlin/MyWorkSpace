@@ -36,16 +36,17 @@ typedef enum WSLogLevel {
 #define WSLOG_LOG_FILE_PATH         "./"         
 
 typedef enum WSLogMaxSize {
-    WSLOG_MAX_FILE_NAME_LEN         = 150,           // absolute path
+    WSLOG_MAX_FILE_NAME_PATH_LEN    = 150,           // absolute path
     WSLOG_MAX_APP_NAME_LEN          = 40,            // application name
-    WSLOG_MAX_LOG_FILE_LEN          = 55,            // log file name
+    WSLOG_MAX_LOG_FILE_LEN          = 50,            // log file name max length
     WSLOG_MAX_FILE_SIZE             = 1024*1024*1,   // 1MB
     WSLOG_MAX_COMM_FILE_NUM         = 1,             // commen type file num(<128): appName.comm.1
     WSLOG_MAX_WARN_FILE_NUM         = 10,            // warning type file num(<128): appName.warn.1 -- appName.warn.10
     WSLOG_MAX_ERROR_FILE_NUM        = 10,            // error type file num(<128): appName.error.1 -- appName.error.10
-    WSLOG_MAX_COMM_BUFFER_SIZE      = 1024*2,        // 2KB
+    WSLOG_MAX_COMM_BUFFER_SIZE      = 1024*3,        // 3KB
     WSLOG_MAX_WARN_BUFFER_SIZE      = 1024,          // 1KB
-    WSLOG_MAX_ERROR_BUFFER_SIZE     = 1024           // 1KB
+    WSLOG_MAX_ERROR_BUFFER_SIZE     = 1024,          // 1KB
+    WSLOG_ORIGIN_FILE_FLUSH_SIZE    = 50             // if the space left less than it, the origin file will be dump into next log files
 }WSLogMaxSize;
 
 typedef enum WSLogRetValue {
@@ -58,7 +59,7 @@ typedef enum WSLogRetValue {
 } WSLogRetValue;
 
 /*********************************************************************************************************
- *DESC: This function should be called before use the WSLogger module.
+ *DESC: This function should be called before use the WSLog module.
  *PARA: appName     the name of application.
  *RETU: WSLOG_RETV_OPEN_SUCCESS
  *      WSLOG_RETV_ARG_EMPTY
@@ -69,9 +70,15 @@ typedef enum WSLogRetValue {
  */
 WSLogRetValue WSLogOpen(char *appName);
 
+/*********************************************************************************************************
+ *DESC: This function log the message into files or stdout/stderr.
+ *PARA: level     the log level of message.
+ *RETU: the number of message written.
+ *
+ */
 WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...);
 
-WSLogRetValue WSLogFlush(void);
+WSLogRetValue WSLogFlush(WSLogFileIndex index);
 
 WSLogRetValue WSLogClose(void);
 

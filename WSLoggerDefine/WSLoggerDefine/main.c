@@ -16,8 +16,6 @@ int main(int argc, const char * argv[])
     printf("%s\n", dir);
     printf("Hello, World!\n");
     WSLogOpen("TestApp");
-    printf("%s\n", dir);
-    printf("Hello, World!\n");
     return 0;
 }
 

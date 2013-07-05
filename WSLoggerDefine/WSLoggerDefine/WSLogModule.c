@@ -32,17 +32,45 @@
 #include <dirent.h>
 #include <fnmatch.h>
 #include <time.h>
+#include <stdarg.h>
 
 static char const *WSLogFileSuffix[]  = {".comm", ".warn", ".err"};
 static char const *WSLogLevelHeads[]  = {"[COMMON]:", "[WARNING]:", "[ERROR]:"};
+static int WSLogFileMaxNum[] = {WSLOG_MAX_COMM_FILE_NUM, WSLOG_MAX_WARN_FILE_NUM, WSLOG_MAX_ERROR_FILE_NUM};
+static size_t WSLogBufferMaxSize[] = {WSLOG_MAX_COMM_BUFFER_SIZE, WSLOG_MAX_WARN_BUFFER_SIZE, WSLOG_MAX_ERROR_BUFFER_SIZE};
 
-static char nextStoreLogFileName[WSLOG_FILE_INDEX_NUM][WSLOG_MAX_LOG_FILE_LEN];
-static off_t currentWroteSize[WSLOG_FILE_INDEX_NUM];
+static char nextStoreLogFileName[WSLOG_FILE_INDEX_NUM][WSLOG_MAX_FILE_NAME_PATH_LEN];
+static off_t originFileWroteSize[WSLOG_FILE_INDEX_NUM];
 static char applicationName[WSLOG_MAX_APP_NAME_LEN];
 
 static FILE *logFilePointers[WSLOG_FILE_INDEX_NUM];
 static char *logFilePaths[WSLOG_FILE_INDEX_NUM];
 static char *logFileBuffer[WSLOG_FILE_INDEX_NUM];
+static size_t bufferUesedSize[WSLOG_FILE_INDEX_NUM];
+
+/*************************** Inner Tools Function ********************************/
+static inline void WSGetLogFilePathPrefix(WSLogFileIndex index, char *chrAry)
+{
+    const char *fileSuffix = WSLogFileSuffix[index];
+    sprintf(chrAry, "%s%s%s", WSLOG_LOG_FILE_PATH, applicationName, fileSuffix);
+}
+// get the right index for special log level
+static inline WSLogFileIndex WSGetIndexForLevel(WSLogLevel level)
+{
+    switch (level) {
+        case WSLOG_LEVEL_COMMON:
+            return WSLOG_INDEX_COMM_FILE;
+            break;
+        case WSLOG_LEVEL_WARNING:
+            return WSLOG_INDEX_WARN_FILE;
+            break;
+        case WSLOG_LEVEL_ERROR:
+            return WSLOG_INDEX_ERROR_FILE;
+            break;
+        default:
+            break;
+    }
+}
 
 WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
 {
@@ -76,7 +104,7 @@ WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
         }
         // get origin log file size
         if (0 == strcmp(dname, originFileName)) {
-            char logfilepath[WSLOG_MAX_FILE_NAME_LEN] = {0};
+            char logfilepath[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
             sprintf(logfilepath, "%s%s", WSLOG_LOG_FILE_PATH, originFileName);
             //WS_dputs(logfilepath);
             struct stat tstat;
@@ -84,7 +112,7 @@ WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
                 WS_derrprintf("stat() %s faild", logfilepath);
                 return WSLOG_RETV_FAIL;
             } else {
-                currentWroteSize[index] = tstat.st_size;
+                originFileWroteSize[index] = tstat.st_size;
             }
         }
         // get next store file
@@ -93,7 +121,7 @@ WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
             if (tt > currentMaxFileNum) {
                 currentMaxFileNum = tt;
             }
-            char logfilepath[WSLOG_MAX_FILE_NAME_LEN] = {0};
+            char logfilepath[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
             sprintf(logfilepath, "%s%s", WSLOG_LOG_FILE_PATH, dname);
             //WS_dputs(logfilepath);
             struct stat tstat;
@@ -103,37 +131,18 @@ WSLogRetValue getLogInfoByIndex(WSLogFileIndex index)
             }
             if (tstat.st_mtime < minModifyTime) {
                 minModifyTime = tstat.st_mtime;
-                memset(tarfile, 0, WSLOG_MAX_LOG_FILE_LEN);
-                strncpy(tarfile, dname, WSLOG_MAX_LOG_FILE_LEN);
+                memset(tarfile, 0, WSLOG_MAX_FILE_NAME_PATH_LEN);
+                strncpy(tarfile, logfilepath, WSLOG_MAX_FILE_NAME_PATH_LEN);
             }
         }
     }
-    WS_dprintf("currentMaxFileNum:%d", currentMaxFileNum);
-    switch (index) {
-        case WSLOG_INDEX_COMM_FILE:
-            if (currentMaxFileNum < WSLOG_MAX_COMM_FILE_NUM) {
-                ++currentMaxFileNum;
-                memset(tarfile, 0, strlen(tarfile));
-                sprintf(tarfile, "%s%s.%d", applicationName, WSLogFileSuffix[index], currentMaxFileNum);
-            }
-            break;
-        case WSLOG_INDEX_ERROR_FILE:
-            if (currentMaxFileNum < WSLOG_MAX_ERROR_FILE_NUM) {
-                ++currentMaxFileNum;
-                memset(tarfile, 0, strlen(tarfile));
-                sprintf(tarfile, "%s%s.%d", applicationName, WSLogFileSuffix[index], currentMaxFileNum);
-            }
-            break;
-        case WSLOG_INDEX_WARN_FILE:
-            if (currentMaxFileNum < WSLOG_MAX_WARN_FILE_NUM) {
-                ++currentMaxFileNum;
-                memset(tarfile, 0, strlen(tarfile));
-                sprintf(tarfile, "%s%s.%d", applicationName, WSLogFileSuffix[index], currentMaxFileNum);
-            }
-            break;
-        default:
-            break;
+    if (currentMaxFileNum < WSLogFileMaxNum[index]) {
+        ++currentMaxFileNum;
+        memset(tarfile, 0, strlen(tarfile));
+        sprintf(tarfile, "%s%s%s.%d", WSLOG_LOG_FILE_PATH, applicationName, WSLogFileSuffix[index], currentMaxFileNum);
     }
+    WS_dprintf("currentMaxFileNum:%d", currentMaxFileNum);
+    
     closedir(dirfd);
     
     return WSLOG_RETV_SUCCESS;
@@ -146,23 +155,23 @@ void getCurrentLogFilesInfo(void)
         if(getLogInfoByIndex(i) != WSLOG_RETV_SUCCESS){
             char originFileName[WSLOG_MAX_LOG_FILE_LEN] = {0};
             sprintf(originFileName, "%s%s", applicationName, WSLogFileSuffix[i]);
-            char logfilepath[WSLOG_MAX_FILE_NAME_LEN] = {0};
+            char logfilepath[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
             sprintf(logfilepath, "%s%s", WSLOG_LOG_FILE_PATH, originFileName);
             
             WS_dprintf("WARNING: %s will be trucate into 0", logfilepath);
             truncate(logfilepath, 0);
-            currentWroteSize[i] = 0;
+            originFileWroteSize[i] = 0;
             
             WS_dputs("WARNING: nextStoreLogFileName will be reset to 1");
-            char logNumName[WSLOG_MAX_LOG_FILE_LEN] = {0};
-            sprintf(logNumName, "%s%s", originFileName, ".1");
-            strncpy(nextStoreLogFileName[i], logNumName, WSLOG_MAX_LOG_FILE_LEN);
+            strcat(logfilepath, ".1");
+            strncpy(nextStoreLogFileName[i], logfilepath, WSLOG_MAX_FILE_NAME_PATH_LEN);
         }
-        WS_dprintf("i:%s", nextStoreLogFileName[i]);
-        WS_dprintf("i:%lld", currentWroteSize[i]);
+        WS_dprintf("nextStoreLogFileName:%s", nextStoreLogFileName[i]);
+        WS_dprintf("originFileWroteSize:%lld", originFileWroteSize[i]);
     }
-}	
+}
 
+/*************************** WSLog Module Function ********************************/
 WSLogRetValue WSLogOpen(char *appName)
 {
     if (strlen(appName) == 0) {
@@ -178,7 +187,7 @@ WSLogRetValue WSLogOpen(char *appName)
 #else
     // alloc memory
     for (int i = WSLOG_INDEX_COMM_FILE; i<= WSLOG_INDEX_ERROR_FILE; ++i) {
-        logFilePaths[i] = (char *)calloc(WSLOG_MAX_FILE_NAME_LEN, sizeof(char));
+        logFilePaths[i] = (char *)calloc(WSLOG_MAX_FILE_NAME_PATH_LEN, sizeof(char));
         if (!logFilePaths[i]) {
             for (int j=WSLOG_INDEX_COMM_FILE; j<i; ++j) {
                 free(logFilePaths[j]);
@@ -206,34 +215,80 @@ WSLogRetValue WSLogOpen(char *appName)
         }
     }
     // init log module into
-    getCurrentLogFilesInfo();
-    // duplicate stdout 
-    if (-1 == dup2(fileno(logFilePointers[WSLOG_INDEX_COMM_FILE]), fileno(stdout))) {        
-        for (int j=WSLOG_INDEX_COMM_FILE; j<=WSLOG_INDEX_ERROR_FILE; ++j) {
-            free(logFilePaths[j]);
-            logFilePaths[j] = NULL;
-            fclose(logFilePointers[j]);
-            logFilePointers[j] = NULL;
-        }
-        WS_derrprintf("dup2() faild");
-        return WSLOG_RETV_DUP_FAIL;
-    }
-    // duplicate stderr
-    if (-1 == dup2(fileno(logFilePointers[WSLOG_INDEX_ERROR_FILE]), fileno(stderr))) {
-        for (int j=WSLOG_INDEX_COMM_FILE; j<=WSLOG_INDEX_ERROR_FILE; ++j) {
-            free(logFilePaths[j]);
-            logFilePaths[j] = NULL;
-            fclose(logFilePointers[j]);
-            logFilePointers[j] = NULL;
-        }
-        WS_derrprintf("dup2() faild");
-        return WSLOG_RETV_DUP_FAIL;
-    }
+    getCurrentLogFilesInfo();	
+    
     return WSLOG_RETV_SUCCESS;
 #endif
 }
 
 WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
+{
+    // generate the string
+    int n, size = 100;  // suppose the message need no more than 100 bytes
+    char *p = NULL, *np = NULL;
+    va_list ap;
+    if ((p = malloc(size)) == NULL) {
+        return WSLOG_RETV_ALLOC_MEM_FAIL;
+    }
+    while (1) {
+        // try to print the allocated space
+        va_start(ap, fmt);
+        n = vsnprintf(p, size, fmt, ap);
+        va_end(ap);
+        if (n > -1 && n < size) {
+            break;
+        }
+        // try more space
+        if (n > -1) {      // glibc 2.1
+            size = n + 1;  // 1 is for the '\0'
+        } else {           // glibc 2.0
+            size = n * 2;  // twice the old size
+        }
+        if ((np = realloc(p, size)) == NULL) {
+            free(p);
+            return WSLOG_RETV_ALLOC_MEM_FAIL;
+        } else {
+            p = np;
+        }
+    }
+    WS_dprintf("target message:%s", p);
+    WSLogFileIndex index = WSGetIndexForLevel(level);
+    bufferUesedSize[index] = strlen(logFileBuffer[index]);
+    size_t msgLen = strlen(p);
+    WS_dprintf("bufferUesedSize[%d]:%zd  tarmsg lenght:%zd", index, bufferUesedSize[index], msgLen);
+    if (WSLogBufferMaxSize[index] - bufferUesedSize[index] > msgLen + 2) { // 2 means '\n' and '\0'
+        strcat(logFileBuffer[index], p);
+        strcat(logFileBuffer[index], "\n");
+        bufferUesedSize[index] += msgLen + 2;
+    } else {
+        // flush the buffer
+        WSLogFlush(index);
+        if (msgLen + 2 <= WSLogBufferMaxSize[index]) {
+            strcat(logFileBuffer[index], p);
+            strcat(logFileBuffer[index], "\n");
+            bufferUesedSize[index] += msgLen + 2;
+        } else {
+            // write into file directly
+            
+        }
+    }
+    
+}
+
+int WSLogWriteFile(WSLogFileIndex index, char *msgStr, size_t amountSize)
+{
+    size_t fileLeftSize = WSLOG_MAX_FILE_SIZE - originFileWroteSize[index];
+    if (fileLeftSize < WSLogBufferMaxSize[index]) {
+        int ret = remove(nextStoreLogFileName[index]);
+        if (ret == -1) {
+            WS_derrprintf("remove() %s failed", nextStoreLogFileName[index]);
+            return 0;
+        }
+        
+    }
+}
+
+WSLogRetValue WSLogFlush(WSLogFileIndex index)
 {
     
 }
