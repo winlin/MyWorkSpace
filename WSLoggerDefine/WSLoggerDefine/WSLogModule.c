@@ -362,9 +362,8 @@ WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
     
     free(tarMessage);
     tarMessage = NULL;
-    
-    return WSLOG_RETV_SUCCESS;
 #endif
+    return WSLOG_RETV_SUCCESS;
 }
 
 void WSLogFlush(void)

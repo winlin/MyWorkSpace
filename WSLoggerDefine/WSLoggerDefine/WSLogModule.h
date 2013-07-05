@@ -29,9 +29,9 @@
  * If don't all message will write into common/warning/error log files.
  * It can be used when you want to relase application
  */
-#define WSLOG_DEBUG_ENABLE           1
+//#define WSLOG_DEBUG_ENABLE           1
 
-#define WSLOG_FILE_INDEX_NUM    3
+#define WSLOG_FILE_INDEX_NUM      3
 typedef enum WSLogFileIndex {
     WSLOG_INDEX_COMM_FILE       = 0,
     WSLOG_INDEX_WARN_FILE       = 1,
@@ -58,7 +58,6 @@ typedef enum WSLogMaxSize {
     WSLOG_MAX_COMM_BUFFER_SIZE      = 1024*4,        // 4KB
     WSLOG_MAX_WARN_BUFFER_SIZE      = 1024,          // 1KB
     WSLOG_MAX_ERROR_BUFFER_SIZE     = 1024,          // 1KB
-    WSLOG_ORIGIN_FILE_FLUSH_SIZE    = 50             // if the space left less than it, the origin file will be dump into next log files
 }WSLogMaxSize;
 
 typedef enum WSLogRetValue {
