@@ -16,6 +16,17 @@ int main(int argc, const char * argv[])
     printf("%s\n", dir);
     printf("Hello, World!\n");
     WSLogOpen("TestApp");
+    
+    for (int i=WSLOG_INDEX_COMM_FILE; i<=WSLOG_INDEX_ERROR_FILE; ++i) {
+        for (int j=0; j < 1000; ++j) {
+            WSLogWrite(WSLOG_LEVEL_COMMON, "This is for common:%d", j);
+            WSLogWrite(WSLOG_LEVEL_WARNING, "This is for warning:%d", j);
+            WSLogWrite(WSLOG_LEVEL_ERROR, "This is for error:%d", j);
+        }
+    }
+    
+    WSLogClose();
+    
     return 0;
 }
 

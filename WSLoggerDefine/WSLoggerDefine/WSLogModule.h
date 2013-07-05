@@ -4,6 +4,18 @@
 //
 //  Created by gtliu on 7/3/13.
 //  Copyright (c) 2013 GT. All rights reserved.
+//  Email:  pcliuguangtao@163.com
+//
+//  Usage:
+//      #include "WSLogModule.h"
+//      int main() {
+//          //...
+//          WSLogWrite(WSLOG_LEVEL_COMMON, "This is for common:%d Message:%s", 12, "Hello world");
+//          WSLogWrite(WSLOG_LEVEL_WARNING, "This is for warning:%d Message:%s", 12, "Hello world");
+//          WSLogWrite(WSLOG_LEVEL_ERROR, "This is for error:%d Message:%s", 12, "Hello world");
+//          //...
+//      }
+//
 //
 
 #ifndef WSLoggerDefine_wslogger_h
@@ -17,7 +29,7 @@
  * If don't all message will write into common/warning/error log files.
  * It can be used when you want to relase application
  */
-//#define WSLOG_DEBUG_ENABLE           1
+#define WSLOG_DEBUG_ENABLE           1
 
 #define WSLOG_FILE_INDEX_NUM    3
 typedef enum WSLogFileIndex {
@@ -39,11 +51,11 @@ typedef enum WSLogMaxSize {
     WSLOG_MAX_FILE_NAME_PATH_LEN    = 150,           // absolute path
     WSLOG_MAX_APP_NAME_LEN          = 40,            // application name
     WSLOG_MAX_LOG_FILE_LEN          = 50,            // log file name max length
-    WSLOG_MAX_FILE_SIZE             = 1024*1024*1,   // 1MB
+    WSLOG_MAX_FILE_SIZE             = 1024*1024*2,   // 2MB not very exact as for system alloc disk space not by bytes(exp 4KB)
     WSLOG_MAX_COMM_FILE_NUM         = 1,             // commen type file num(<128): appName.comm.1
     WSLOG_MAX_WARN_FILE_NUM         = 10,            // warning type file num(<128): appName.warn.1 -- appName.warn.10
     WSLOG_MAX_ERROR_FILE_NUM        = 10,            // error type file num(<128): appName.error.1 -- appName.error.10
-    WSLOG_MAX_COMM_BUFFER_SIZE      = 1024*3,        // 3KB
+    WSLOG_MAX_COMM_BUFFER_SIZE      = 1024*4,        // 4KB
     WSLOG_MAX_WARN_BUFFER_SIZE      = 1024,          // 1KB
     WSLOG_MAX_ERROR_BUFFER_SIZE     = 1024,          // 1KB
     WSLOG_ORIGIN_FILE_FLUSH_SIZE    = 50             // if the space left less than it, the origin file will be dump into next log files
@@ -70,18 +82,27 @@ typedef enum WSLogRetValue {
  */
 WSLogRetValue WSLogOpen(char *appName);
 
-/*********************************************************************************************************
- *DESC: This function log the message into files or stdout/stderr.
+/***************************************************************************************************************
+ *DESC: This function log the message into files or stdout/stderr which depends on the WSLOG_DEBUG_ENABLE flag.
  *PARA: level     the log level of message.
  *RETU: the number of message written.
  *
  */
 WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...);
 
-WSLogRetValue WSLogFlush(WSLogFileIndex index);
+/***************************************************************************************************************
+ *DESC: This function will flush all buffer into log files.
+ *      If doesn't define the WSLOG_DEBUG_ENABLE flag this function will do nothing.
+ *
+ */
+void WSLogFlush(void);
 
-WSLogRetValue WSLogClose(void);
-
+/***************************************************************************************************************
+ *DESC: This function will close all open files and release the memory.
+ *      If doesn't define the WSLOG_DEBUG_ENABLE flag this function will do nothing.
+ *
+ */
+void WSLogClose(void);
 
 #endif
 
