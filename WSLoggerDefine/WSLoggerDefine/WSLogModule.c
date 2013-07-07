@@ -196,7 +196,7 @@ void WSLogWriteFile(WSLogFileIndex aryIndex, char *msgStr, long long amountSize)
 			 originFileWroteSize[aryIndex], amountSize);
     // 2. check whether the origin file has enough space
     if (fileLeftSize < amountSize) {
-        WS_dprintf("Will Write into next stroe file:%s", msgStr);
+        WS_dputs("Oringin file will be Written into next stroe file");
         // cp origin file(ex:TestApp.comm) to next stroe log file(ex:TestApp.comm)
         FILE *nextStoreFP = fopen(nextStoreLogFileName[aryIndex], "w");
         if (nextStoreFP == NULL) {
