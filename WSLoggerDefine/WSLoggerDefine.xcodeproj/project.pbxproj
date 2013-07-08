@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D4A6178178425A400E89B30 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6177178425A400E89B30 /* main.c */; };
+		0D4A6178178425A400E89B30 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6177178425A400E89B30 /* test.c */; };
 		0D4A617A178425A400E89B30 /* WSLoggerDefine.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */; };
-		0D4A6182178431FE00E89B30 /* WSLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6181178431FE00E89B30 /* WSLogModule.c */; };
+		0D4A6182178431FE00E89B30 /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6181178431FE00E89B30 /* MITLogModule.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,10 +27,10 @@
 
 /* Begin PBXFileReference section */
 		0D4A6174178425A400E89B30 /* WSLoggerDefine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = WSLoggerDefine; sourceTree = BUILT_PRODUCTS_DIR; };
-		0D4A6177178425A400E89B30 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		0D4A6177178425A400E89B30 /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
 		0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = WSLoggerDefine.1; sourceTree = "<group>"; };
-		0D4A6180178425CF00E89B30 /* WSLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSLogModule.h; sourceTree = "<group>"; };
-		0D4A6181178431FE00E89B30 /* WSLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WSLogModule.c; sourceTree = "<group>"; };
+		0D4A6180178425CF00E89B30 /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
+		0D4A6181178431FE00E89B30 /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,9 +63,9 @@
 		0D4A6176178425A400E89B30 /* WSLoggerDefine */ = {
 			isa = PBXGroup;
 			children = (
-				0D4A6177178425A400E89B30 /* main.c */,
-				0D4A6180178425CF00E89B30 /* WSLogModule.h */,
-				0D4A6181178431FE00E89B30 /* WSLogModule.c */,
+				0D4A6177178425A400E89B30 /* test.c */,
+				0D4A6180178425CF00E89B30 /* MITLogModule.h */,
+				0D4A6181178431FE00E89B30 /* MITLogModule.c */,
 				0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */,
 			);
 			path = WSLoggerDefine;
@@ -122,8 +122,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0D4A6178178425A400E89B30 /* main.c in Sources */,
-				0D4A6182178431FE00E89B30 /* WSLogModule.c in Sources */,
+				0D4A6178178425A400E89B30 /* test.c in Sources */,
+				0D4A6182178431FE00E89B30 /* MITLogModule.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

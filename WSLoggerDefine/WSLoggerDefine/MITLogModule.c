@@ -1,27 +1,27 @@
 //
 //  wslogger.c
-//  WSLoggerDefine
+//  MITLoggerDefine
 //
 //  Created by gtliu on 7/3/13.
 //  Copyright (c) 2013 GT. All rights reserved.
 //
 
-#define WS_derrprintf(fmt, args...) printf("%s %d ERROR:%s: "fmt"\n", __func__, __LINE__, strerror(errno), ##args)
+#define MIT_derrprintf(fmt, args...) printf("%s %d ERROR:%s: "fmt"\n", __func__, __LINE__, strerror(errno), ##args)
 
-//#define WS_DEBUG
-#ifdef  WS_DEBUG
-#define WS_dputs(str) printf("%s %d: %s\n", __func__, __LINE__, str)
-#define WS_dprintf(fmt, args...) printf("%s %d: "fmt"\n", __func__, __LINE__, ##args)
-#define WSLogEnter  printf("%s:%d %s\n", __func__, __LINE__, "Enter -->");
-#define WSLogExit   printf("%s:%d %s\n", __func__, __LINE__, "<--Exist");
+//#define MIT_DEBUG
+#ifdef  MIT_DEBUG
+#define MIT_dputs(str) printf("%s %d: %s\n", __func__, __LINE__, str)
+#define MIT_dprintf(fmt, args...) printf("%s %d: "fmt"\n", __func__, __LINE__, ##args)
+#define MITLogEnter  printf("%s:%d %s\n", __func__, __LINE__, "Enter -->");
+#define MITLogExit   printf("%s:%d %s\n", __func__, __LINE__, "<--Exist");
 #else
-#define WS_dputs(str)
-#define WS_dprintf(fmt, args...)
-#define WSLogEnter
-#define WSLogExit
+#define MIT_dputs(str)
+#define MIT_dprintf(fmt, args...)
+#define MITLogEnter
+#define MITLogExit
 #endif
 
-#include "WSLogModule.h"
+#include "MITLogModule.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -35,54 +35,54 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
-#if WSLOG_DEBUG_ENABLE
-static char const *WSLogLevelHeads[]  = {"[COMMON]", "[WARNING]", "[ERROR]"};
+#if MITLOG_DEBUG_ENABLE
+static char const *MITLogLevelHeads[]  = {"[COMMON]", "[WARNING]", "[ERROR]"};
 
 #else
-static char const *WSLogFileSuffix[]  = {".comm", ".warn", ".err"};
-static int WSLogFileMaxNum[] = {WSLOG_MAX_COMM_FILE_NUM, WSLOG_MAX_WARN_FILE_NUM,\
-				 WSLOG_MAX_ERROR_FILE_NUM};
+static char const *MITLogFileSuffix[]  = {".comm", ".warn", ".err"};
+static int MITLogFileMaxNum[] = {MITLOG_MAX_COMM_FILE_NUM, MITLOG_MAX_WARN_FILE_NUM,\
+				 MITLOG_MAX_ERROR_FILE_NUM};
 
-static long long WSLogBufferMaxSize[] = {WSLOG_MAX_COMM_BUFFER_SIZE,\
-				 WSLOG_MAX_WARN_BUFFER_SIZE, WSLOG_MAX_ERROR_BUFFER_SIZE};
+static long long MITLogBufferMaxSize[] = {MITLOG_MAX_COMM_BUFFER_SIZE,\
+				 MITLOG_MAX_WARN_BUFFER_SIZE, MITLOG_MAX_ERROR_BUFFER_SIZE};
 
-static char applicationName[WSLOG_MAX_APP_NAME_LEN];
-static char *logFilePaths[WSLOG_FILE_INDEX_NUM];
-static char *logFileBuffer[WSLOG_FILE_INDEX_NUM];
+static char applicationName[MITLOG_MAX_APP_NAME_LEN];
+static char *logFilePaths[MITLOG_FILE_INDEX_NUM];
+static char *logFileBuffer[MITLOG_FILE_INDEX_NUM];
 
 static pthread_rwlock_t bufferRWlock;     // use for the logFileBuffer
 
 #endif
-static FILE *originFilePointers[WSLOG_FILE_INDEX_NUM];
+static FILE *originFilePointers[MITLOG_FILE_INDEX_NUM];
 
 
 /*************************** Inner Tools Function ********************************/
-#ifndef WSLOG_DEBUG_ENABLE
+#ifndef MITLOG_DEBUG_ENABLE
 // return the log file path, exp: /data/logs/TestApp.comm
-static inline void WSGetLogFilePathPrefix(WSLogFileIndex aryIndex, char *chrAry)
+static inline void MITGetLogFilePathPrefix(MITLogFileIndex aryIndex, char *chrAry)
 {
-    const char *fileSuffix = WSLogFileSuffix[aryIndex];
-    sprintf(chrAry, "%s%s%s", WSLOG_LOG_FILE_PATH, applicationName, fileSuffix);
+    const char *fileSuffix = MITLogFileSuffix[aryIndex];
+    sprintf(chrAry, "%s%s%s", MITLOG_LOG_FILE_PATH, applicationName, fileSuffix);
 }
 
 // get origin file size and next should be updated log file's name
-WSLogRetValue WSGetLogInfoByIndex(WSLogFileIndex aryIndex, char *nextStoreFile, long long *fileSize)
+MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFile, long long *fileSize)
 {
-    const char *fileSuffix = WSLogFileSuffix[aryIndex];
+    const char *fileSuffix = MITLogFileSuffix[aryIndex];
     
     // pattern:  TestApp.comm.*
-    char logNumPattern[WSLOG_MAX_LOG_FILE_LEN] = {0};
+    char logNumPattern[MITLOG_MAX_LOG_FILE_LEN] = {0};
     sprintf(logNumPattern, "%s%s%s", applicationName, fileSuffix, ".*");
     // origin log file name
-    char originFileName[WSLOG_MAX_LOG_FILE_LEN] = {0};
+    char originFileName[MITLOG_MAX_LOG_FILE_LEN] = {0};
     sprintf(originFileName, "%s%s", applicationName, fileSuffix);
     
     DIR *dirfd = NULL;
     struct dirent *entry = NULL;
     
-    if ((dirfd = opendir(WSLOG_LOG_FILE_PATH)) == NULL) {
-        WS_derrprintf("opendir() faild");
-        return WSLOG_RETV_FAIL;
+    if ((dirfd = opendir(MITLOG_LOG_FILE_PATH)) == NULL) {
+        MIT_derrprintf("opendir() faild");
+        return MITLOG_RETV_FAIL;
     }
     // 1 mean the '.' between num and suffix. TestApp.comm.1
     long long partLen = strlen(applicationName) + strlen(fileSuffix) + 1;
@@ -96,13 +96,13 @@ WSLogRetValue WSGetLogInfoByIndex(WSLogFileIndex aryIndex, char *nextStoreFile, 
         }
         // get origin log file size
         if (0 == strcmp(dname, originFileName)) {
-            char logfilepath[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
-            sprintf(logfilepath, "%s%s", WSLOG_LOG_FILE_PATH, originFileName);
-            WS_dputs(logfilepath);
+            char logfilepath[MITLOG_MAX_FILE_NAME_PATH_LEN] = {0};
+            sprintf(logfilepath, "%s%s", MITLOG_LOG_FILE_PATH, originFileName);
+            MIT_dputs(logfilepath);
             struct stat tstat;
             if (stat(logfilepath, &tstat) < 0) {
-                WS_derrprintf("stat() %s faild", logfilepath);
-                return WSLOG_RETV_FAIL;
+                MIT_derrprintf("stat() %s faild", logfilepath);
+                return MITLOG_RETV_FAIL;
             } else {
                 *fileSize = tstat.st_size;
             }
@@ -112,36 +112,36 @@ WSLogRetValue WSGetLogInfoByIndex(WSLogFileIndex aryIndex, char *nextStoreFile, 
             if (tt > currentMaxFileNum) {
                 currentMaxFileNum = tt;
             }
-            char logfilepath[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
-            sprintf(logfilepath, "%s%s", WSLOG_LOG_FILE_PATH, dname);
-            WS_dputs(logfilepath);
+            char logfilepath[MITLOG_MAX_FILE_NAME_PATH_LEN] = {0};
+            sprintf(logfilepath, "%s%s", MITLOG_LOG_FILE_PATH, dname);
+            MIT_dputs(logfilepath);
             struct stat tstat;
             if (stat(logfilepath, &tstat) < 0) {
-                WS_derrprintf("stat() %s faild", logfilepath);
-                return WSLOG_RETV_FAIL;
+                MIT_derrprintf("stat() %s faild", logfilepath);
+                return MITLOG_RETV_FAIL;
             }
             if (minModifyTime == 0 || tstat.st_mtime < minModifyTime) {
                 minModifyTime = tstat.st_mtime;
-                memset(nextStoreFile, 0, WSLOG_MAX_FILE_NAME_PATH_LEN);
-                strncpy(nextStoreFile, logfilepath, WSLOG_MAX_FILE_NAME_PATH_LEN);
+                memset(nextStoreFile, 0, MITLOG_MAX_FILE_NAME_PATH_LEN);
+                strncpy(nextStoreFile, logfilepath, MITLOG_MAX_FILE_NAME_PATH_LEN);
             }
         }
     }
-    WS_dprintf("currentMaxFileNum:%d  nextStoreFile:%s", currentMaxFileNum, nextStoreFile);
-    if (currentMaxFileNum < WSLogFileMaxNum[aryIndex]) {
+    MIT_dprintf("currentMaxFileNum:%d  nextStoreFile:%s", currentMaxFileNum, nextStoreFile);
+    if (currentMaxFileNum < MITLogFileMaxNum[aryIndex]) {
         ++currentMaxFileNum;
-        memset(nextStoreFile, 0, WSLOG_MAX_FILE_NAME_PATH_LEN);
-        sprintf(nextStoreFile, "%s%s%s.%d", WSLOG_LOG_FILE_PATH, applicationName,\
-				 WSLogFileSuffix[aryIndex], currentMaxFileNum);
+        memset(nextStoreFile, 0, MITLOG_MAX_FILE_NAME_PATH_LEN);
+        sprintf(nextStoreFile, "%s%s%s.%d", MITLOG_LOG_FILE_PATH, applicationName,\
+				 MITLogFileSuffix[aryIndex], currentMaxFileNum);
     }
-    WS_dprintf("currentMaxFileNum:%d  nextStoreFile:%s", currentMaxFileNum, nextStoreFile);
+    MIT_dprintf("currentMaxFileNum:%d  nextStoreFile:%s", currentMaxFileNum, nextStoreFile);
     closedir(dirfd);
    
-    return WSLOG_RETV_SUCCESS;
+    return MITLOG_RETV_SUCCESS;
 }
 
 // use to copy file
-void WSLogCopyFile(FILE *fromFP, FILE *toFP)
+void MITLogCopyFile(FILE *fromFP, FILE *toFP)
 {
     char buf[1024*10];
     long long nread;
@@ -164,30 +164,30 @@ void WSLogCopyFile(FILE *fromFP, FILE *toFP)
 }
 
 // write buffer content into next store file
-void WSLogWriteFile(WSLogFileIndex aryIndex, char *msgStr, long long msgSize)
+void MITLogWriteFile(MITLogFileIndex aryIndex, char *msgStr, long long msgSize)
 {
     if (msgSize == 0) {
         return;
     }
     // 1. get log module info for special aryIndex
-    char nextStoreFile[WSLOG_MAX_FILE_NAME_PATH_LEN] = {0};
+    char nextStoreFile[MITLOG_MAX_FILE_NAME_PATH_LEN] = {0};
     long long originFileSize  = 0;
-    WSGetLogInfoByIndex(aryIndex, nextStoreFile, &originFileSize);
-    long long fileLeftSize = WSLOG_MAX_FILE_SIZE - originFileSize;
-    WS_dprintf("fileLeftSize:%lld  originFileWroteSize:%lld  msgSize:%lld", fileLeftSize,\
+    MITGetLogInfoByIndex(aryIndex, nextStoreFile, &originFileSize);
+    long long fileLeftSize = MITLOG_MAX_FILE_SIZE - originFileSize;
+    MIT_dprintf("fileLeftSize:%lld  originFileWroteSize:%lld  msgSize:%lld", fileLeftSize,\
 			 originFileSize, msgSize);
     
     // 2. check whether the origin file has enough space
     if (fileLeftSize < msgSize) {
-        WS_dputs("Oringin file will be Written into next stroe file");
+        MIT_dputs("Oringin file will be Written into next stroe file");
         // cp origin file(ex:TestApp.comm) to next stroe log file(ex:TestApp.comm)
         FILE *nextStoreFP = fopen(nextStoreFile, "w");
         if (nextStoreFP == NULL) {
-            WS_derrprintf("fopen() %s faild", nextStoreFile);
+            MIT_derrprintf("fopen() %s faild", nextStoreFile);
         }
-        WSLogCopyFile(originFilePointers[aryIndex], nextStoreFP);
+        MITLogCopyFile(originFilePointers[aryIndex], nextStoreFP);
         if (fflush(nextStoreFP) !=0 ) {
-            WS_derrprintf("fflush() failed: %s", nextStoreFile);
+            MIT_derrprintf("fflush() failed: %s", nextStoreFile);
         }
         fclose(nextStoreFP);
         // empty the origin file this step MUST be executed.
@@ -208,104 +208,104 @@ void WSLogWriteFile(WSLogFileIndex aryIndex, char *msgStr, long long msgSize)
         }
     } while (num > 0);
     if (fflush(originFilePointers[aryIndex]) !=0 ) {
-        WS_derrprintf("fflush() failed: %d", aryIndex);
+        MIT_derrprintf("fflush() failed: %d", aryIndex);
     }
 }
 #endif
 // get the right aryIndex for special log level
-static inline WSLogFileIndex WSGetIndexForLevel(WSLogLevel level)
+static inline MITLogFileIndex MITGetIndexForLevel(MITLogLevel level)
 {
     switch (level) {
-        case WSLOG_LEVEL_COMMON:
-            return WSLOG_INDEX_COMM_FILE;
+        case MITLOG_LEVEL_COMMON:
+            return MITLOG_INDEX_COMM_FILE;
             break;
-        case WSLOG_LEVEL_WARNING:
-            return WSLOG_INDEX_WARN_FILE;
+        case MITLOG_LEVEL_WARNING:
+            return MITLOG_INDEX_WARN_FILE;
             break;
-        case WSLOG_LEVEL_ERROR:
-            return WSLOG_INDEX_ERROR_FILE;
+        case MITLOG_LEVEL_ERROR:
+            return MITLOG_INDEX_ERROR_FILE;
             break;
         default:
             break;
     }
 }
 
-/*************************** WSLog Module Function ********************************/
-WSLogRetValue WSLogOpen(char *appName)
+/*************************** MITLog Module Function ********************************/
+MITLogRetValue MITLogOpen(char *appName)
 {    
-#if WSLOG_DEBUG_ENABLE
-    originFilePointers[WSLOG_INDEX_COMM_FILE] = stdout;
-    originFilePointers[WSLOG_INDEX_WARN_FILE] = stderr;
-    originFilePointers[WSLOG_INDEX_ERROR_FILE] = stderr;
-    return WSLOG_RETV_SUCCESS;
+#if MITLOG_DEBUG_ENABLE
+    originFilePointers[MITLOG_INDEX_COMM_FILE] = stdout;
+    originFilePointers[MITLOG_INDEX_WARN_FILE] = stderr;
+    originFilePointers[MITLOG_INDEX_ERROR_FILE] = stderr;
+    return MITLOG_RETV_SUCCESS;
 #else
     if (strlen(appName) == 0) {
-        return WSLOG_RETV_ARG_EMPTY;
+        return MITLOG_RETV_ARG_EMPTY;
     }
-    strncpy(applicationName, appName, WSLOG_MAX_APP_NAME_LEN);
+    strncpy(applicationName, appName, MITLOG_MAX_APP_NAME_LEN);
     // init the read/write lock
     int ret = pthread_rwlock_init(&bufferRWlock, NULL);
     if (ret != 0) {
-        WS_dprintf("pthread_rwlock_init() failed:%d", ret);
-        return WSLOG_RETV_FAIL;
+        MIT_dprintf("pthread_rwlock_init() failed:%d", ret);
+        return MITLOG_RETV_FAIL;
     }
     // alloc memory
-    for (int i = WSLOG_INDEX_COMM_FILE; i<= WSLOG_INDEX_ERROR_FILE; ++i) {
-        logFilePaths[i] = (char *)calloc(WSLOG_MAX_FILE_NAME_PATH_LEN, sizeof(char));
+    for (int i = MITLOG_INDEX_COMM_FILE; i<= MITLOG_INDEX_ERROR_FILE; ++i) {
+        logFilePaths[i] = (char *)calloc(MITLOG_MAX_FILE_NAME_PATH_LEN, sizeof(char));
         if (!logFilePaths[i]) {
-            for (int j=WSLOG_INDEX_COMM_FILE; j<i; ++j) {
+            for (int j=MITLOG_INDEX_COMM_FILE; j<i; ++j) {
                 free(logFilePaths[j]);
                 logFilePaths[j] = NULL;
             }
-            WS_derrprintf("Allocate memroy Faild");
-            return WSLOG_RETV_ALLOC_MEM_FAIL;
+            MIT_derrprintf("Allocate memroy Faild");
+            return MITLOG_RETV_ALLOC_MEM_FAIL;
         }
-        logFileBuffer[i] = (char *)calloc(WSLogBufferMaxSize[i], sizeof(char));
+        logFileBuffer[i] = (char *)calloc(MITLogBufferMaxSize[i], sizeof(char));
         if (!logFileBuffer[i]) {
-            for (int j=WSLOG_INDEX_COMM_FILE; j<WSLOG_INDEX_ERROR_FILE; ++j) {
+            for (int j=MITLOG_INDEX_COMM_FILE; j<MITLOG_INDEX_ERROR_FILE; ++j) {
                 free(logFilePaths[j]);
                 logFilePaths[j] = NULL;
             }
-            for (int j=WSLOG_INDEX_COMM_FILE; j<i; ++j) {
+            for (int j=MITLOG_INDEX_COMM_FILE; j<i; ++j) {
                 free(logFileBuffer[j]);
                 logFileBuffer[j] = NULL;
             }
-            WS_derrprintf("Allocate memroy Faild");
-            return WSLOG_RETV_ALLOC_MEM_FAIL;
+            MIT_derrprintf("Allocate memroy Faild");
+            return MITLOG_RETV_ALLOC_MEM_FAIL;
         }
     }
     // open files
-    for (int i = WSLOG_INDEX_COMM_FILE; i<= WSLOG_INDEX_ERROR_FILE; ++i) {
-        sprintf(logFilePaths[i], "%s%s%s", WSLOG_LOG_FILE_PATH, appName, WSLogFileSuffix[i]);
+    for (int i = MITLOG_INDEX_COMM_FILE; i<= MITLOG_INDEX_ERROR_FILE; ++i) {
+        sprintf(logFilePaths[i], "%s%s%s", MITLOG_LOG_FILE_PATH, appName, MITLogFileSuffix[i]);
         originFilePointers[i] = fopen(logFilePaths[i], "a+");
         if (!originFilePointers[i]) {
-            for (int j=WSLOG_INDEX_COMM_FILE; j<=WSLOG_INDEX_ERROR_FILE; ++j) {
+            for (int j=MITLOG_INDEX_COMM_FILE; j<=MITLOG_INDEX_ERROR_FILE; ++j) {
                 free(logFilePaths[j]);
                 logFilePaths[j] = NULL;
                 free(logFileBuffer[j]);
                 logFileBuffer[j] = NULL;
             }
-            for (int j=WSLOG_INDEX_COMM_FILE; j<i; ++j) {
+            for (int j=MITLOG_INDEX_COMM_FILE; j<i; ++j) {
                 fclose(originFilePointers[j]);
                 originFilePointers[j] = NULL;
             }
-            WS_derrprintf("Open %s Faild", logFilePaths[i]);
-            return WSLOG_RETV_OPEN_FILE_FAIL;
+            MIT_derrprintf("Open %s Faild", logFilePaths[i]);
+            return MITLOG_RETV_OPEN_FILE_FAIL;
         }
     }
     
-    return WSLOG_RETV_SUCCESS;
+    return MITLOG_RETV_SUCCESS;
 #endif
 }
 
-WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
+MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
 {
     // 1. generate the string
     int n, size = 100;      // suppose the message need no more than 100 bytes
     char *tarp = NULL, *np = NULL;
     va_list ap;
     if ((tarp = malloc(size)) == NULL) {
-        return WSLOG_RETV_ALLOC_MEM_FAIL;
+        return MITLOG_RETV_ALLOC_MEM_FAIL;
     }
     while (1) {
         // try to print the allocated space
@@ -323,7 +323,7 @@ WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
         }
         if ((np = realloc(tarp, size)) == NULL) {
             free(tarp);
-            return WSLOG_RETV_ALLOC_MEM_FAIL;
+            return MITLOG_RETV_ALLOC_MEM_FAIL;
         } else {
             tarp = np;
         }
@@ -338,34 +338,34 @@ WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
     if (!tarMessage) {
         free(tarp);
         tarp = NULL;
-        return WSLOG_RETV_ALLOC_MEM_FAIL;
+        return MITLOG_RETV_ALLOC_MEM_FAIL;
     }
     sprintf(tarMessage, "%s %s\n", timeStr, tarp);
     sumLen = strlen(tarMessage);
     
     free(tarp);
     np = tarp = NULL;
-    //WS_dprintf("target message:%s", tarMessage);
-    WSLogFileIndex aryIndex = WSGetIndexForLevel(level);
+    //MIT_dprintf("target message:%s", tarMessage);
+    MITLogFileIndex aryIndex = MITGetIndexForLevel(level);
     
-#if WSLOG_DEBUG_ENABLE
-    fprintf(originFilePointers[aryIndex], "%-10s%s", WSLogLevelHeads[aryIndex], tarMessage);
+#if MITLOG_DEBUG_ENABLE
+    fprintf(originFilePointers[aryIndex], "%-10s%s", MITLogLevelHeads[aryIndex], tarMessage);
 #else
     // 3. add target message into buffer or file
     pthread_rwlock_wrlock(&bufferRWlock);
     long long bufferUesedSize = strlen(logFileBuffer[aryIndex]);
-    if (WSLogBufferMaxSize[aryIndex] - bufferUesedSize > sumLen) {
+    if (MITLogBufferMaxSize[aryIndex] - bufferUesedSize > sumLen) {
         // write into buffer
         strcat(logFileBuffer[aryIndex], tarMessage);
         pthread_rwlock_unlock(&bufferRWlock);
     } else {
-        WS_dputs("String write into file*****************");
+        MIT_dputs("String write into file*****************");
         pthread_rwlock_unlock(&bufferRWlock);
         
         pthread_rwlock_rdlock(&bufferRWlock);
         // 1. flush the buffer
         long long firstLen = strlen(logFileBuffer[aryIndex]);
-        WSLogWriteFile(aryIndex, logFileBuffer[aryIndex], firstLen);
+        MITLogWriteFile(aryIndex, logFileBuffer[aryIndex], firstLen);
         pthread_rwlock_unlock(&bufferRWlock);
         
         pthread_rwlock_wrlock(&bufferRWlock);
@@ -377,43 +377,43 @@ WSLogRetValue WSLogWrite(WSLogLevel level, const char *fmt, ...)
         } else if(subNum > 0){
             memset(logFileBuffer[aryIndex], 0, firstLen);
             memmove(logFileBuffer[aryIndex], logFileBuffer[aryIndex]+firstLen, subNum);
-            memset(logFileBuffer[aryIndex]+subNum, 0, WSLogBufferMaxSize[aryIndex]-subNum);
+            memset(logFileBuffer[aryIndex]+subNum, 0, MITLogBufferMaxSize[aryIndex]-subNum);
         }
         // 2. write into origin file or buffer
-        if (sumLen < WSLogBufferMaxSize[aryIndex]) {
+        if (sumLen < MITLogBufferMaxSize[aryIndex]) {
             // write into buffer
             strcat(logFileBuffer[aryIndex], tarMessage);
             pthread_rwlock_unlock(&bufferRWlock);
         } else {
             pthread_rwlock_unlock(&bufferRWlock);
             // write into origin file directly
-            WSLogWriteFile(aryIndex, tarMessage, sumLen);
+            MITLogWriteFile(aryIndex, tarMessage, sumLen);
         }
     }
     
     free(tarMessage);
     tarMessage = NULL;
 #endif
-    return WSLOG_RETV_SUCCESS;
+    return MITLOG_RETV_SUCCESS;
 }
 
-void WSLogFlush(void)
+void MITLogFlush(void)
 {
-#ifndef WSLOG_DEBUG_ENABLE
-    for (int i=WSLOG_INDEX_COMM_FILE; i<=WSLOG_INDEX_ERROR_FILE; ++i) {
-        WSLogWriteFile(i, logFileBuffer[i], strlen(logFileBuffer[i]));
+#ifndef MITLOG_DEBUG_ENABLE
+    for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
+        MITLogWriteFile(i, logFileBuffer[i], strlen(logFileBuffer[i]));
         fflush(originFilePointers[i]);
     }
 #endif
 }
 
-void WSLogClose(void)
+void MITLogClose(void)
 {
-#ifndef WSLOG_DEBUG_ENABLE
+#ifndef MITLOG_DEBUG_ENABLE
     // 1. flush the buffers
-    WSLogFlush();
+    MITLogFlush();
     // 2. release the resources
-    for (int j=WSLOG_INDEX_COMM_FILE; j<=WSLOG_INDEX_ERROR_FILE; ++j) {
+    for (int j=MITLOG_INDEX_COMM_FILE; j<=MITLOG_INDEX_ERROR_FILE; ++j) {
         fclose(originFilePointers[j]);
         originFilePointers[j] = NULL;
         
@@ -425,7 +425,7 @@ void WSLogClose(void)
     // 3. destroy the rwlock
     int ret = pthread_rwlock_destroy(&bufferRWlock);
     if (ret != 0) {
-        WS_dprintf("pthread_rwlock_destroy() failed:%d", ret);
+        MIT_dprintf("pthread_rwlock_destroy() failed:%d", ret);
     }
 #endif
 }

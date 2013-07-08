@@ -1,6 +1,6 @@
 //
 //  main.c
-//  WSLoggerDefine
+//  MITLoggerDefine
 //
 //  Created by gtliu on 7/3/13.
 //  Copyright (c) 2013 GT. All rights reserved.
@@ -10,7 +10,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include "WSLogModule.h"
+#include "MITLogModule.h"
 
 
 void *tFucOne(void *arg);
@@ -23,24 +23,24 @@ int main(int argc, const char * argv[])
     printf("%s\n", dir);
     
     // 1. usage in one thread demo
-    // at first in main thread call WSLogOpen()
-    WSLogOpen("TestApp");
+    // at first in main thread call MITLogOpen()
+    MITLogOpen("TestApp");
     puts("just have a try and feel the speed");
     time_t starttime = time(NULL);
-    for (int i=WSLOG_INDEX_COMM_FILE; i<=WSLOG_INDEX_ERROR_FILE; ++i) {
+    for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
         for (int j=0; j < 100000; ++j) {
-            WSLogWrite(WSLOG_LEVEL_COMMON, "This is for common:%d", j);
-            WSLogWrite(WSLOG_LEVEL_WARNING, "This is for warning:%d", j);
-            WSLogWrite(WSLOG_LEVEL_ERROR, "This is for error:%d", j);
+            MITLogWrite(MITLOG_LEVEL_COMMON, "This is for common:%d", j);
+            MITLogWrite(MITLOG_LEVEL_WARNING, "This is for warning:%d", j);
+            MITLogWrite(MITLOG_LEVEL_ERROR, "This is for error:%d", j);
         }
     }
     time_t closetime = time(NULL);
     printf("All time:%ld\n", closetime-starttime);
     // at last you should close the log module
-    WSLogClose();
+    MITLogClose();
     
     // 2. test the thread safe
-    WSLogOpen("ThreadTest");
+    MITLogOpen("ThreadTest");
     puts("start thread safe test");
     pthread_t oneThread, twoThread;
     int ret = 0;
@@ -56,11 +56,11 @@ int main(int argc, const char * argv[])
     pthread_join(oneThread, NULL);
     pthread_join(twoThread, NULL);
     puts("thread safe test over, you can use 'wc -l ThreadTest.comm' command to check the data's integerity");
-    WSLogClose();
+    MITLogClose();
     
     // 3. test the process safe
     puts("start process safe test");
-    WSLogOpen("ProcessTest");
+    MITLogOpen("ProcessTest");
     
     pid_t pid;
     pid = fork();
@@ -73,7 +73,7 @@ int main(int argc, const char * argv[])
         // parent process
         while (pInteger <= 1000 || childEnd == 0) {
             if (pInteger <= 1000) {
-                WSLogWrite(WSLOG_LEVEL_COMMON, "parent process :%d", pInteger);
+                MITLogWrite(MITLOG_LEVEL_COMMON, "parent process :%d", pInteger);
                 pInteger += 2;
             }
             usleep(random()%800);
@@ -81,29 +81,29 @@ int main(int argc, const char * argv[])
                 childEnd = 1;
             }
         }
-        puts("end process safe test");
+        puts("end process safe test, you can use 'wc -l ProcessTest.comm' command to check the data's integerity");
     } else if (pid == 0) {
         // child process
         for (int i=1; i<=1000; i+=2) {
-            WSLogWrite(WSLOG_LEVEL_COMMON, "child process :%d", i);
+            MITLogWrite(MITLOG_LEVEL_COMMON, "child process :%d", i);
             usleep(random()%800);
         }
     }
-    WSLogClose();
+    MITLogClose();
     return 0;
 }
 
 void *tFucOne(void *arg)
 {
     for (int i=1; i<=10000; i+=2) {
-        WSLogWrite(WSLOG_LEVEL_COMMON, "thread one :%d", i);
+        MITLogWrite(MITLOG_LEVEL_COMMON, "thread one :%d", i);
         usleep(random()%800);
     }
 }
 void *tFuncTwo(void *arg)
 {
     for (int i=2; i<=10000; i+=2) {
-        WSLogWrite(WSLOG_LEVEL_COMMON, "thread two :%d", i);
+        MITLogWrite(MITLOG_LEVEL_COMMON, "thread two :%d", i);
         usleep(random()%800);
     }
 }
