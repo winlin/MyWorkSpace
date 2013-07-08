@@ -10,6 +10,8 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "MITLogModule.h"
 
 
