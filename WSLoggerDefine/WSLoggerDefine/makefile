@@ -1,4 +1,4 @@
-hellomake: main.c WSLogModule.c
-	gcc -std=c99 -o hellomake main.c WSLogModule.c
+MitLogTest: test.c MITLogModule.c
+	gcc -std=c99 -o MitLogTest test.c MITLogModule.c
 clean:
-	rm *.gch hellomake
+	rm *.gch MitLogTest
