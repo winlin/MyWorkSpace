@@ -1,6 +1,6 @@
 //
 //  WSLogModule.h
-//  WSLoggerDefine
+//  WSLogDefine
 //
 //  Created by gtliu on 7/3/13.
 //  Copyright (c) 2013 GT. All rights reserved.
@@ -22,8 +22,8 @@
 //
 //
 
-#ifndef WSLoggerDefine_wslogger_h
-#define WSLoggerDefine_wslogger_h
+#ifndef WSLogMoudle_H
+#define WSLogMoudle_H
 
 // debug switch macro
 /****************************************************************************************
@@ -55,8 +55,8 @@ typedef enum WSLogMaxSize {
     WSLOG_MAX_FILE_NAME_PATH_LEN    = 150,           // absolute path
     WSLOG_MAX_APP_NAME_LEN          = 40,            // application name
     WSLOG_MAX_LOG_FILE_LEN          = 50,            // log file name max length
-    WSLOG_MAX_FILE_SIZE             = 1024*1024*2,   // 2MB not very exact as for system alloc \
-						     	disk space not by bytes(exp 4KB)
+    WSLOG_MAX_FILE_SIZE             = 1024*1024,   // 2MB not very exact as for system alloc
+                                                     // disk space not by bytes(exp 4KB)
     WSLOG_MAX_COMM_FILE_NUM         = 1,             // common type file num: appName.comm.1
     WSLOG_MAX_WARN_FILE_NUM         = 10,            // warning type file num: appName.warn.1 -- appName.warn.10
     WSLOG_MAX_ERROR_FILE_NUM        = 10,            // error type file num: appName.error.1 -- appName.error.10
