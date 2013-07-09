@@ -8,7 +8,16 @@
 
 #define MIT_derrprintf(fmt, args...) printf("%s %d ERROR:%s: "fmt"\n", __func__, __LINE__, strerror(errno), ##args)
 
+/** logmodule debug switch macro */
+/**
+ * If define the marco message of log module will be printed into stdout.
+ * It can be used when you want to debug the log module.
+ *
+ * Without the definition you will see nothing.
+ * It can be used when you want to relase the log module.
+ */
 //#define MIT_DEBUG
+
 #ifdef  MIT_DEBUG
 #define MIT_dputs(str) printf("%s %d: %s\n", __func__, __LINE__, str)
 #define MIT_dprintf(fmt, args...) printf("%s %d: "fmt"\n", __func__, __LINE__, ##args)

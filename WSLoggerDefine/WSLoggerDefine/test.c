@@ -27,7 +27,7 @@ int main(int argc, const char * argv[])
     // 1. usage in one thread demo
     // at first in main thread call MITLogOpen()
     MITLogOpen("TestApp");
-    puts("just have a try and feel the speed");
+    puts("just have a try and feel the speed:write 30000 messages");
     time_t starttime = time(NULL);
     for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
         for (int j=0; j < 10000; ++j) {
@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
     
     // 2. test the thread safe
     MITLogOpen("ThreadTest");
-    puts("start thread safe test");
+    puts("start thread safe test: two thread write into ThreadTest.comm for 1000 times");
     pthread_t oneThread, twoThread;
     int ret = 0;
     ret = pthread_create(&oneThread, NULL, tFucOne, NULL);
@@ -57,11 +57,11 @@ int main(int argc, const char * argv[])
 
     pthread_join(oneThread, NULL);
     pthread_join(twoThread, NULL);
-    puts("thread safe test over, you can use 'wc -l ThreadTest.comm' command to check the data's integerity");
+    puts("thread safe test over, you can use 'wc -l ThreadTest.comm' \n command to check the data's integerity");
     MITLogClose();
     
     // 3. test the process safe
-    puts("start process safe test");
+    puts("start process safe test: two process write into ProcessTest.comm for 1000 times");
     MITLogOpen("ProcessTest");
     
     pid_t pid;

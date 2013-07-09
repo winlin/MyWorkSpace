@@ -27,10 +27,10 @@
 
 /** debug switch macro */
 /**
- * If define the marco all message will print into stdout/stderr.
+ * If define the marco all message will be printed into stdout/stderr.
  * It can be used when you want to debug application.
  *
- * If don't all message will write into common/warning/error log files.
+ * Without the definition all message will be written into common/warning/error log files.
  * It can be used when you want to relase application
  */
 //#define MITLOG_DEBUG_ENABLE      1
