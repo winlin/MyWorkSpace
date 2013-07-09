@@ -30,7 +30,7 @@ int main(int argc, const char * argv[])
     puts("just have a try and feel the speed");
     time_t starttime = time(NULL);
     for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
-        for (int j=0; j < 100000; ++j) {
+        for (int j=0; j < 10000; ++j) {
             MITLogWrite(MITLOG_LEVEL_COMMON, "This is for common:%d", j);
             MITLogWrite(MITLOG_LEVEL_WARNING, "This is for warning:%d", j);
             MITLogWrite(MITLOG_LEVEL_ERROR, "This is for error:%d", j);
@@ -86,7 +86,7 @@ int main(int argc, const char * argv[])
         puts("end process safe test, you can use 'wc -l ProcessTest.comm' command to check the data's integerity");
     } else if (pid == 0) {
         // child process
-        for (int i=1; i<=1000; i+=2) {
+        for (int i=2; i<=1000; i+=2) {
             MITLogWrite(MITLOG_LEVEL_COMMON, "child process :%d", i);
             usleep(random()%800);
         }

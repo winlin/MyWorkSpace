@@ -49,7 +49,7 @@ typedef enum MITLogLevel {
 } MITLogLevel;
 
 // define log file
-#define MITLOG_LOG_FILE_PATH         "./"         
+#define MITLOG_LOG_FILE_PATH         "./logs/"        // must end with the '/' 
 
 typedef enum MITLogMaxSize {
     MITLOG_MAX_FILE_NAME_PATH_LEN    = 150,           // absolute path
