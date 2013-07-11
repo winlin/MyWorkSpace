@@ -46,23 +46,12 @@ int client_connection(const char *sock_path)
     }
     
     struct sockaddr_un client_un;
+    memset(&client_un, 0, sizeof(client_un));
     client_un.sun_family = AF_UNIX;
-    strcpy(client_un.sun_path, sock_path);
+    strncpy(client_un.sun_path, sock_path, sizeof(client_un.sun_path) - 1);
     
-    /* in case it already exists */
-    unlink(sock_path);
     len = offsetof(struct sockaddr_un, sun_path) + strlen(client_un.sun_path);
-    if (bind(fd, (struct sockaddr *)&client_un, len) < 0) {
-        MITLogWrite(MITLOG_LEVEL_ERROR, "bind() failed:%s", strerror(errno));
-        close(fd);
-        return FUNC_FAIL;
-    }
-    if (chmod(client_un.sun_path, S_IRWXU) < 0) {
-        MITLogWrite(MITLOG_LEVEL_ERROR, "chmod() failed:%s", strerror(errno));
-        close(fd);
-        return FUNC_FAIL;
-    }
-    if (connect(fd, (struct sockaddr *)&client_un, len) < 0) {
+    if ((connect(fd, (struct sockaddr *)&client_un, len)) < 0) {
         MITLogWrite(MITLOG_LEVEL_ERROR, "connect() failed:%s", strerror(errno));
         close(fd);
         return FUNC_FAIL;
@@ -77,7 +66,7 @@ int main(int argc, const char * argv[])
     MITLogOpen("unix_domain_client");
     
     MITLogWrite(MITLOG_LEVEL_COMMON, "Starting the client...");
-    int client_fd = client_connection("~/local_socket_one");
+    int client_fd = client_connection(argv[1]);
     if (client_fd == FUNC_FAIL) {
         return FUNC_FAIL;
     }

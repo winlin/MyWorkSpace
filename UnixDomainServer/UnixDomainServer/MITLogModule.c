@@ -358,7 +358,8 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
     MITLogFileIndex aryIndex = MITGetIndexForLevel(level);
     
 #if MITLOG_DEBUG_ENABLE
-    fprintf(originFilePointers[aryIndex], "%-10s%s", MITLogLevelHeads[aryIndex], tarMessage);
+    fprintf(originFilePointers[aryIndex], "%-10s %s:%d %s", MITLogLevelHeads[aryIndex],
+            __func__, __LINE__, tarMessage);
 #else
     // 3. add target message into buffer or file
     pthread_rwlock_wrlock(&bufferRWlock);
