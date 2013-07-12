@@ -93,8 +93,13 @@ int main(int argc, const char * argv[])
 
     MITLogOpen("unix_domain_server");
     
+    char *sock_path = "/tmp/domain_socket_one";
+    if (argc > 1) {
+        sock_path = (char *) argv[1];
+    }
+        
     MITLogWrite(MITLOG_LEVEL_COMMON, "Starting the server...");
-    int listen_fd = create_serv_listen(argv[1]);
+    int listen_fd = create_serv_listen(sock_path);
     if (listen_fd == FUNC_FAIL) {
         return FUNC_FAIL;
     }

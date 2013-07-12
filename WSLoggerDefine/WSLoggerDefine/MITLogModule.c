@@ -255,7 +255,13 @@ MITLogRetValue MITLogOpen(char *appName)
     // init the read/write lock
     int ret = pthread_rwlock_init(&bufferRWlock, NULL);
     if (ret != 0) {
-        MIT_dprintf("pthread_rwlock_init() failed:%d", ret);
+        MIT_derrprintf("pthread_rwlock_init() failed:%d", ret);
+        return MITLOG_RETV_FAIL;
+    }
+    // keep the log path exist
+    ret = mkdir(MITLOG_LOG_FILE_PATH, S_IRWXU|S_IRWXG|S_IRWXO);
+    if (ret == -1 && errno != EEXIST) {
+        MIT_derrprintf("mkdir() failed:%d", ret);
         return MITLOG_RETV_FAIL;
     }
     // alloc memory
@@ -358,8 +364,7 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
     MITLogFileIndex aryIndex = MITGetIndexForLevel(level);
     
 #if MITLOG_DEBUG_ENABLE
-    fprintf(originFilePointers[aryIndex], "%-10s %s:%d %s", MITLogLevelHeads[aryIndex],
-            __func__, __LINE__, tarMessage);
+    fprintf(originFilePointers[aryIndex], "%-10s %s", MITLogLevelHeads[aryIndex], tarMessage);
 #else
     // 3. add target message into buffer or file
     pthread_rwlock_wrlock(&bufferRWlock);

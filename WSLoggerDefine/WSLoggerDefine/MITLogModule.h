@@ -12,7 +12,7 @@
  *       int main() {
  *        MITLogOpen("TestApp");
  *         //...
- *        MITLogWrite(MITLOG_LEVEL_COMMON, "This is for common:%d Message:%s", 12, "Hello world");
+ *         MITLogWrite(MITLOG_LEVEL_COMMON, "This is for common:%d Message:%s", 12, "Hello world");
  *         MITLogWrite(MITLOG_LEVEL_WARNING, "This is for warning:%d Message:%s", 12, "Hello world");
  *         MITLogFlush();
  *         MITLogWrite(MITLOG_LEVEL_ERROR, "This is for error:%d Message:%s", 12, "Hello world");
@@ -33,7 +33,7 @@
  * Without the definition all message will be written into common/warning/error log files.
  * It can be used when you want to relase application
  */
-//#define MITLOG_DEBUG_ENABLE      1
+#define MITLOG_DEBUG_ENABLE      1
 
 #define MITLOG_FILE_INDEX_NUM      3
 typedef enum MITLogFileIndex {
@@ -96,6 +96,15 @@ MITLogRetValue MITLogOpen(char *appName);
  *
  */
 MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...);
+
+/**
+ * These macro defination can be used print more detail info with __func__ and __LINE__
+ *
+ */
+#define MIT_DetPuts(level, str)                MITLogWrite(level, "%s %d: %s", __func__, __LINE__, str)
+#define MIT_DetPrintf(level, fmt, args...)     MITLogWrite(level, "%s %d: "fmt"", __func__, __LINE__, ##args)
+#define MIT_DetLogEnter                        MITLogWrite(MITLOG_LEVEL_COMMON, "%s:%d %s", __func__, __LINE__, "Enter -->");
+#define MIT_DetLogExit                         MITLogWrite(MITLOG_LEVEL_COMMON, "%s:%d %s", __func__, __LINE__, "<--Exist");
 
 /**
  * This function will flush all buffer into log files.

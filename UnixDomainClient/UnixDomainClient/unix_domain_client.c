@@ -64,9 +64,14 @@ int main(int argc, const char * argv[])
 {
     
     MITLogOpen("unix_domain_client");
+
+    char *sock_path = "/tmp/domain_socket_one";
+    if (argc > 1) {
+        sock_path = (char *) argv[1];
+    }
     
     MITLogWrite(MITLOG_LEVEL_COMMON, "Starting the client...");
-    int client_fd = client_connection(argv[1]);
+    int client_fd = client_connection(sock_path);
     if (client_fd == FUNC_FAIL) {
         return FUNC_FAIL;
     }

@@ -20,14 +20,15 @@ void *tFuncTwo(void *arg);
 
 int main(int argc, const char * argv[])
 {
+    MITLogOpen("TestApp");
+    
     char dir[1024];
     getcwd(dir, sizeof(dir));
-    printf("%s\n", dir);
+    MIT_DetPrintf(MITLOG_LEVEL_COMMON, "%s", dir);
     
     // 1. usage in one thread demo
     // at first in main thread call MITLogOpen()
-    MITLogOpen("TestApp");
-    puts("just have a try and feel the speed:write 30000 messages");
+    MIT_DetPuts(MITLOG_LEVEL_COMMON, "just have a try and feel the speed:write 30000 messages");
     time_t starttime = time(NULL);
     for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
         for (int j=0; j < 10000; ++j) {
@@ -37,7 +38,7 @@ int main(int argc, const char * argv[])
         }
     }
     time_t closetime = time(NULL);
-    printf("All time:%ld\n", closetime-starttime);
+    MIT_DetPrintf(MITLOG_LEVEL_COMMON, "All time:%ld\n", closetime-starttime);
     // at last you should close the log module
     MITLogClose();
     
