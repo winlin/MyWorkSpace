@@ -79,9 +79,9 @@ int main(int argc, const char * argv[])
     for (int i=1; i < 100; ++i) {
         MITLogWrite(MITLOG_LEVEL_COMMON, "Send message to server...");
         char msg[256] = {0};
-        sprintf(msg, "client message :%d", i);
+        sprintf(msg, "client message :%d", 11);
         if(write(client_fd, msg, strlen(msg)) > 0) {
-            MITLogWrite(MITLOG_LEVEL_COMMON, "Send message :%d success", i);
+            MITLogWrite(MITLOG_LEVEL_COMMON, "Send message :%d success", 11);
         }
         sleep(2);
     }

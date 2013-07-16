@@ -7,134 +7,130 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0DB4320D1793D9270009FFE2 /* libevent_udp_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4320C1793D9270009FFE2 /* libevent_udp_server.c */; };
-		0DB4320F1793D9270009FFE2 /* LibEventDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0DB4320E1793D9270009FFE2 /* LibEventDemo.1 */; };
-		0DB432171793EC900009FFE2 /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DB432151793EC900009FFE2 /* MITLogModule.c */; };
-		0DB432191793FC3C0009FFE2 /* libevent_core-2.0.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DB432181793FC3C0009FFE2 /* libevent_core-2.0.5.dylib */; };
+		0DC46D9B179411D100B8170A /* local_udp_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46D9A179411D100B8170A /* local_udp_client.c */; };
+		0DC46D9D179411D100B8170A /* UDPClient.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0DC46D9C179411D100B8170A /* UDPClient.1 */; };
+		0DC46DA5179411F300B8170A /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46DA3179411F300B8170A /* MITLogModule.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		0DB432071793D9270009FFE2 /* CopyFiles */ = {
+		0DC46D95179411D100B8170A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				0DB4320F1793D9270009FFE2 /* LibEventDemo.1 in CopyFiles */,
+				0DC46D9D179411D100B8170A /* UDPClient.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0DB432091793D9270009FFE2 /* LibEventDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LibEventDemo; sourceTree = BUILT_PRODUCTS_DIR; };
-		0DB4320C1793D9270009FFE2 /* libevent_udp_server.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = libevent_udp_server.c; sourceTree = "<group>"; };
-		0DB4320E1793D9270009FFE2 /* LibEventDemo.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = LibEventDemo.1; sourceTree = "<group>"; };
-		0DB432151793EC900009FFE2 /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
-		0DB432161793EC900009FFE2 /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
-		0DB432181793FC3C0009FFE2 /* libevent_core-2.0.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libevent_core-2.0.5.dylib"; path = "../../../../../usr/local/lib/libevent_core-2.0.5.dylib"; sourceTree = "<group>"; };
+		0DC46D97179411D100B8170A /* UDPClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UDPClient; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DC46D9A179411D100B8170A /* local_udp_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = local_udp_client.c; sourceTree = "<group>"; };
+		0DC46D9C179411D100B8170A /* UDPClient.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = UDPClient.1; sourceTree = "<group>"; };
+		0DC46DA3179411F300B8170A /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
+		0DC46DA4179411F300B8170A /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0DB432061793D9270009FFE2 /* Frameworks */ = {
+		0DC46D94179411D100B8170A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DB432191793FC3C0009FFE2 /* libevent_core-2.0.5.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0DB432001793D9270009FFE2 = {
+		0DC46D8E179411D100B8170A = {
 			isa = PBXGroup;
 			children = (
-				0DB432181793FC3C0009FFE2 /* libevent_core-2.0.5.dylib */,
-				0DB4320B1793D9270009FFE2 /* LibEventDemo */,
-				0DB4320A1793D9270009FFE2 /* Products */,
+				0DC46D99179411D100B8170A /* UDPClient */,
+				0DC46D98179411D100B8170A /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		0DB4320A1793D9270009FFE2 /* Products */ = {
+		0DC46D98179411D100B8170A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0DB432091793D9270009FFE2 /* LibEventDemo */,
+				0DC46D97179411D100B8170A /* UDPClient */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0DB4320B1793D9270009FFE2 /* LibEventDemo */ = {
+		0DC46D99179411D100B8170A /* UDPClient */ = {
 			isa = PBXGroup;
 			children = (
-				0DB4320C1793D9270009FFE2 /* libevent_udp_server.c */,
-				0DB4320E1793D9270009FFE2 /* LibEventDemo.1 */,
-				0DB432151793EC900009FFE2 /* MITLogModule.c */,
-				0DB432161793EC900009FFE2 /* MITLogModule.h */,
+				0DC46D9A179411D100B8170A /* local_udp_client.c */,
+				0DC46D9C179411D100B8170A /* UDPClient.1 */,
+				0DC46DA3179411F300B8170A /* MITLogModule.c */,
+				0DC46DA4179411F300B8170A /* MITLogModule.h */,
 			);
-			path = LibEventDemo;
+			path = UDPClient;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0DB432081793D9270009FFE2 /* LibEventDemo */ = {
+		0DC46D96179411D100B8170A /* UDPClient */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0DB432121793D9270009FFE2 /* Build configuration list for PBXNativeTarget "LibEventDemo" */;
+			buildConfigurationList = 0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UDPClient" */;
 			buildPhases = (
-				0DB432051793D9270009FFE2 /* Sources */,
-				0DB432061793D9270009FFE2 /* Frameworks */,
-				0DB432071793D9270009FFE2 /* CopyFiles */,
+				0DC46D93179411D100B8170A /* Sources */,
+				0DC46D94179411D100B8170A /* Frameworks */,
+				0DC46D95179411D100B8170A /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = LibEventDemo;
-			productName = LibEventDemo;
-			productReference = 0DB432091793D9270009FFE2 /* LibEventDemo */;
+			name = UDPClient;
+			productName = UDPClient;
+			productReference = 0DC46D97179411D100B8170A /* UDPClient */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		0DB432011793D9270009FFE2 /* Project object */ = {
+		0DC46D8F179411D100B8170A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = GT;
 			};
-			buildConfigurationList = 0DB432041793D9270009FFE2 /* Build configuration list for PBXProject "LibEventDemo" */;
+			buildConfigurationList = 0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UDPClient" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 0DB432001793D9270009FFE2;
-			productRefGroup = 0DB4320A1793D9270009FFE2 /* Products */;
+			mainGroup = 0DC46D8E179411D100B8170A;
+			productRefGroup = 0DC46D98179411D100B8170A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0DB432081793D9270009FFE2 /* LibEventDemo */,
+				0DC46D96179411D100B8170A /* UDPClient */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0DB432051793D9270009FFE2 /* Sources */ = {
+		0DC46D93179411D100B8170A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DB4320D1793D9270009FFE2 /* libevent_udp_server.c in Sources */,
-				0DB432171793EC900009FFE2 /* MITLogModule.c in Sources */,
+				0DC46D9B179411D100B8170A /* local_udp_client.c in Sources */,
+				0DC46DA5179411F300B8170A /* MITLogModule.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0DB432101793D9270009FFE2 /* Debug */ = {
+		0DC46D9E179411D100B8170A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -166,7 +162,7 @@
 			};
 			name = Debug;
 		};
-		0DB432111793D9270009FFE2 /* Release */ = {
+		0DC46D9F179411D100B8170A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -191,20 +187,16 @@
 			};
 			name = Release;
 		};
-		0DB432131793D9270009FFE2 /* Debug */ = {
+		0DC46DA1179411D100B8170A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "/usr/local/include/**";
-				LIBRARY_SEARCH_PATHS = "/usr/local/lib/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		0DB432141793D9270009FFE2 /* Release */ = {
+		0DC46DA2179411D100B8170A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "/usr/local/include/**";
-				LIBRARY_SEARCH_PATHS = "/usr/local/lib/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -212,25 +204,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0DB432041793D9270009FFE2 /* Build configuration list for PBXProject "LibEventDemo" */ = {
+		0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UDPClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DB432101793D9270009FFE2 /* Debug */,
-				0DB432111793D9270009FFE2 /* Release */,
+				0DC46D9E179411D100B8170A /* Debug */,
+				0DC46D9F179411D100B8170A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0DB432121793D9270009FFE2 /* Build configuration list for PBXNativeTarget "LibEventDemo" */ = {
+		0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UDPClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DB432131793D9270009FFE2 /* Debug */,
-				0DB432141793D9270009FFE2 /* Release */,
+				0DC46DA1179411D100B8170A /* Debug */,
+				0DC46DA2179411D100B8170A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 0DB432011793D9270009FFE2 /* Project object */;
+	rootObject = 0DC46D8F179411D100B8170A /* Project object */;
 }

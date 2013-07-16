@@ -24,7 +24,7 @@ int main(int argc, const char * argv[])
     
     char dir[1024];
     getcwd(dir, sizeof(dir));
-    MIT_DetPrintf(MITLOG_LEVEL_COMMON, "%s", dir);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "%s", dir);
     
     // 1. usage in one thread demo
     // at first in main thread call MITLogOpen()
@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
         }
     }
     time_t closetime = time(NULL);
-    MIT_DetPrintf(MITLOG_LEVEL_COMMON, "All time:%ld\n", closetime-starttime);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "All time:%ld\n", closetime-starttime);
     // at last you should close the log module
     MITLogClose();
     
