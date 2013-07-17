@@ -164,31 +164,29 @@ int start_url_request(struct http_request_get *http_req, int req_get_flag)
      * Request will be released by evhttp connection
      * See info of evhttp_make_request()
      */
+    const char *path = evhttp_uri_get_path(http_req->uri);
     if (req_get_flag == REQUEST_POST_FLAG) {
         http_req->req = evhttp_request_new(http_requset_post_cb, http_req);
-    } else if (req_get_flag ==  REQUEST_GET_FLAG) {
-        http_req->req = evhttp_request_new(http_requset_get_cb, http_req);
-    }
-    
-    if (req_get_flag == REQUEST_POST_FLAG) {
-        const char *path = evhttp_uri_get_path(http_req->uri);
+        
         evhttp_make_request(http_req->cn, http_req->req, EVHTTP_REQ_POST,
                             path ? path : "/");
         /** Set the post data */
         struct http_request_post *http_req_post = (struct http_request_post *)http_req;
         evbuffer_add(http_req_post->req->output_buffer, http_req_post->post_data, strlen(http_req_post->post_data));
         evhttp_add_header(http_req_post->req->output_headers, "Content-Type", http_req_post->content_type);
-    } else if (req_get_flag == REQUEST_GET_FLAG) {
+    } else if (req_get_flag ==  REQUEST_GET_FLAG) {
+        http_req->req = evhttp_request_new(http_requset_get_cb, http_req);
+        
         const char *query = evhttp_uri_get_query(http_req->uri);
-        const char *path = evhttp_uri_get_path(http_req->uri);
         size_t len = (query ? strlen(query) : 0) + (path ? strlen(path) : 0) + 1;
         char *path_query = NULL;
         if (len > 1) {
             path_query = calloc(len, sizeof(char));
             sprintf(path_query, "%s?%s", path, query);
-        }        
+        }
         evhttp_make_request(http_req->cn, http_req->req, EVHTTP_REQ_GET,
-                             path_query ? path_query: "/");
+                            path_query ? path_query: "/");
+
     }
     /** Set the header properties */
     evhttp_add_header(http_req->req->output_headers, "Host", evhttp_uri_get_host(http_req->uri));
