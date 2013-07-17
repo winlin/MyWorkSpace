@@ -1,0 +1,238 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0DC46DB31795418700B8170A /* mit_libevent_http_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46DB21795418700B8170A /* mit_libevent_http_client.c */; };
+		0DC46DB51795418700B8170A /* LibEventHttpClient.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0DC46DB41795418700B8170A /* LibEventHttpClient.1 */; };
+		0DC46DBF179542D100B8170A /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46DBD179542D100B8170A /* MITLogModule.c */; };
+		0DF2E525179570FB001C9681 /* libevent-2.0.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DC46DBB179541CF00B8170A /* libevent-2.0.5.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0DC46DAD1795418700B8170A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				0DC46DB51795418700B8170A /* LibEventHttpClient.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0DC46DAF1795418700B8170A /* LibEventHttpClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LibEventHttpClient; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DC46DB21795418700B8170A /* mit_libevent_http_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mit_libevent_http_client.c; sourceTree = "<group>"; };
+		0DC46DB41795418700B8170A /* LibEventHttpClient.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = LibEventHttpClient.1; sourceTree = "<group>"; };
+		0DC46DBB179541CF00B8170A /* libevent-2.0.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libevent-2.0.5.dylib"; path = "../../../../../usr/local/lib/libevent-2.0.5.dylib"; sourceTree = "<group>"; };
+		0DC46DBD179542D100B8170A /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
+		0DC46DBE179542D100B8170A /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0DC46DAC1795418700B8170A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DF2E525179570FB001C9681 /* libevent-2.0.5.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0DC46DA61795418700B8170A = {
+			isa = PBXGroup;
+			children = (
+				0DC46DBB179541CF00B8170A /* libevent-2.0.5.dylib */,
+				0DC46DB11795418700B8170A /* LibEventHttpClient */,
+				0DC46DB01795418700B8170A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0DC46DB01795418700B8170A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0DC46DAF1795418700B8170A /* LibEventHttpClient */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0DC46DB11795418700B8170A /* LibEventHttpClient */ = {
+			isa = PBXGroup;
+			children = (
+				0DC46DB21795418700B8170A /* mit_libevent_http_client.c */,
+				0DC46DBD179542D100B8170A /* MITLogModule.c */,
+				0DC46DBE179542D100B8170A /* MITLogModule.h */,
+				0DC46DB41795418700B8170A /* LibEventHttpClient.1 */,
+			);
+			path = LibEventHttpClient;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0DC46DAE1795418700B8170A /* LibEventHttpClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DC46DB81795418700B8170A /* Build configuration list for PBXNativeTarget "LibEventHttpClient" */;
+			buildPhases = (
+				0DC46DAB1795418700B8170A /* Sources */,
+				0DC46DAC1795418700B8170A /* Frameworks */,
+				0DC46DAD1795418700B8170A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LibEventHttpClient;
+			productName = LibEventHttpClient;
+			productReference = 0DC46DAF1795418700B8170A /* LibEventHttpClient */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0DC46DA71795418700B8170A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = GT;
+			};
+			buildConfigurationList = 0DC46DAA1795418700B8170A /* Build configuration list for PBXProject "LibEventHttpClient" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0DC46DA61795418700B8170A;
+			productRefGroup = 0DC46DB01795418700B8170A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0DC46DAE1795418700B8170A /* LibEventHttpClient */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0DC46DAB1795418700B8170A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DC46DB31795418700B8170A /* mit_libevent_http_client.c in Sources */,
+				0DC46DBF179542D100B8170A /* MITLogModule.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0DC46DB61795418700B8170A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0DC46DB71795418700B8170A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0DC46DB91795418700B8170A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				LIBRARY_SEARCH_PATHS = "/usr/local/lib/**";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/**";
+			};
+			name = Debug;
+		};
+		0DC46DBA1795418700B8170A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				LIBRARY_SEARCH_PATHS = "/usr/local/lib/**";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/**";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0DC46DAA1795418700B8170A /* Build configuration list for PBXProject "LibEventHttpClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DC46DB61795418700B8170A /* Debug */,
+				0DC46DB71795418700B8170A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0DC46DB81795418700B8170A /* Build configuration list for PBXNativeTarget "LibEventHttpClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DC46DB91795418700B8170A /* Debug */,
+				0DC46DBA1795418700B8170A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0DC46DA71795418700B8170A /* Project object */;
+}

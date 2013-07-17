@@ -360,7 +360,7 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
     
     free(tarp);
     np = tarp = NULL;
-    //MIT_dprintf("target message:%s", tarMessage);
+    MIT_dprintf("target message:%s", tarMessage);
     MITLogFileIndex aryIndex = MITGetIndexForLevel(level);
     
 #if MITLOG_DEBUG_ENABLE
