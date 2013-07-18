@@ -25,6 +25,9 @@
 #ifndef MITLogMoudle_H
 #define MITLogMoudle_H
 
+#include <errno.h>
+#include <string.h>
+
 /** debug switch macro */
 /**
  * If define the marco all message will be printed into stdout/stderr.
@@ -33,7 +36,7 @@
  * Without the definition all message will be written into common/warning/error log files.
  * It can be used when you want to relase application
  */
-//#define MITLOG_DEBUG_ENABLE      1
+#define MITLOG_DEBUG_ENABLE      1
 
 #define MITLOG_FILE_INDEX_NUM      3
 typedef enum MITLogFileIndex {

@@ -20,7 +20,7 @@ void *tFuncTwo(void *arg);
 
 int main(int argc, const char * argv[])
 {
-    MITLogOpen("TestApp");
+    MITLogOpen("TestApp", "./logs");
     
     char dir[1024];
     getcwd(dir, sizeof(dir));
@@ -28,7 +28,7 @@ int main(int argc, const char * argv[])
     
     // 1. usage in one thread demo
     // at first in main thread call MITLogOpen()
-    MIT_DetPuts(MITLOG_LEVEL_COMMON, "just have a try and feel the speed:write 30000 messages");
+    MITLog_DetPuts(MITLOG_LEVEL_COMMON, "just have a try and feel the speed:write 30000 messages");
     time_t starttime = time(NULL);
     for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
         for (int j=0; j < 10000; ++j) {
@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
     MITLogClose();
     
     // 2. test the thread safe
-    MITLogOpen("ThreadTest");
+    MITLogOpen("ThreadTest", "./logs/");
     puts("start thread safe test: two thread write into ThreadTest.comm for 1000 times");
     pthread_t oneThread, twoThread;
     int ret = 0;
@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
     
     // 3. test the process safe
     puts("start process safe test: two process write into ProcessTest.comm for 1000 times");
-    MITLogOpen("ProcessTest");
+    MITLogOpen("ProcessTest", "./logs");
     
     pid_t pid;
     pid = fork();

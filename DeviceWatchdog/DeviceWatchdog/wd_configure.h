@@ -1,0 +1,66 @@
+//
+//  wd_configure.h
+//  DeviceWatchdog
+//
+//  Created by gtliu on 7/18/13.
+//  Copyright (c) 2013 GT. All rights reserved.
+//
+
+#ifndef DeviceWatchdog_wd_configure_h
+#define DeviceWatchdog_wd_configure_h
+
+#include <time.h>
+#include <unistd.h>
+
+#define WD_DEBUG                     1
+
+#ifdef  WD_DEBUG
+#define WD_FILE_PATH_APP             "./"
+#define WD_FILE_PATH_LOG             "./log/"
+#else
+#define WD_FILE_PATH_APP             "/sdcard/watchdog/"
+#define WD_FILE_PATH_LOG             "/sdcard/log/"
+#endif
+
+#define WD_FILE_NAME_CONFIGURE       "watchdog.cfg"
+#define WD_FILE_NAME_PORT            "port"
+#define WD_FILE_NAME_PID             "pid"
+
+#define    DEFAULT_FEED_PERIOD                  15  
+#define    DEFAULT_UDP_PORT                     9999
+#define    DEFAULT_MAX_MISSED_FEED_TIMES        3
+
+struct monitor_app_info {
+    /** command line to start the app */
+    char *cmd_line;
+    /** the feed period of the app */
+    unsigned long int app_period;
+    /** the app's process id */
+    pid_t app_pid;
+    /** last feed timestamp, unit is second */
+    time_t app_last_feed_time;
+};
+
+struct monitor_app_info_node {
+    struct monitor_app_info_node *privious_node;
+    struct monitor_app_info_node *next_node;
+    struct monitor_app_info app_info;
+};
+
+struct wd_configure {
+    /** default UDP listen port */
+    unsigned long int default_udp_port;
+    /** max missing feed times */
+    unsigned long int max_missed_feed_times;
+    /** default monitor period, unit is second */
+    unsigned long int default_feed_period;
+    /** process id of watchdog daemon */
+    pid_t current_pid;
+    /** monitored apps list*/
+    struct monitor_app_info_node *apps_list_head;
+};
+
+struct wd_configure* get_wd_configure(void);
+
+
+#endif
