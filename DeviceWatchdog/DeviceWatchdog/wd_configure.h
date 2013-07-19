@@ -56,11 +56,28 @@ struct wd_configure {
     unsigned long int default_feed_period;
     /** process id of watchdog daemon */
     pid_t current_pid;
-    /** monitored apps list*/
+    /** monitored apps list */
     struct monitor_app_info_node *apps_list_head;
+    /** monitored apps count */
+    unsigned int monitored_apps_count;
 };
 
+/**
+ * Ues to initialize the watchdog configure info.
+ * @returns On success the object will be returned
+ *          else NULL will returned.
+ */
 struct wd_configure* get_wd_configure(void);
 
+/**
+ * Print the monitored apps's command line.
+ * @param   head: the head of monitored apps list.
+ */
+void print_wd_configure(struct wd_configure *wd_conf);
+
+/**
+ * Free the watchdog configure object.
+ */
+void free_wd_configure(struct wd_configure *wd_conf);
 
 #endif

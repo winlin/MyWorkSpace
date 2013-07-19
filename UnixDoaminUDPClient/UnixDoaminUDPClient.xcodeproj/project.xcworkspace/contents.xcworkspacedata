@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:UDPClient.xcodeproj">
+      location = "self:UnixDoaminUDPClient.xcodeproj">
    </FileRef>
 </Workspace>

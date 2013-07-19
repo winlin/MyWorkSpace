@@ -36,13 +36,15 @@ int main(int argc, const char * argv[])
         MITLog_DetPuts(MITLOG_LEVEL_ERROR, "get_wd_configure() failed");
         goto CLOSE_LOG_TAG;
     }
-    /** print the watchdog configure info */
-    struct monitor_app_info_node *tmp = wd_conf->apps_list_head;
-    while (tmp) {
-        MITLog_DetPuts(MITLOG_LEVEL_COMMON, tmp->app_info.cmd_line);
-        tmp = tmp->next_node;
-    }
-
+    print_wd_configure(wd_conf);
+    
+    
+    
+    
+    
+    
+    
+    free_wd_configure(wd_conf);
     MITLogClose();
     return 0;
     

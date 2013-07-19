@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D25ECB4179810C900C0F5EA /* libpthread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D25ECB3179810C900C0F5EA /* libpthread.dylib */; };
 		0D4A6178178425A400E89B30 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6177178425A400E89B30 /* test.c */; };
 		0D4A617A178425A400E89B30 /* WSLoggerDefine.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */; };
 		0D4A6182178431FE00E89B30 /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4A6181178431FE00E89B30 /* MITLogModule.c */; };
@@ -27,6 +28,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0D25ECB3179810C900C0F5EA /* libpthread.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpthread.dylib; path = usr/lib/libpthread.dylib; sourceTree = SDKROOT; };
+		0D25ECD21798F19400C0F5EA /* mit_data_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mit_data_define.h; sourceTree = "<group>"; };
 		0D4A6174178425A400E89B30 /* WSLoggerDefine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = WSLoggerDefine; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D4A6177178425A400E89B30 /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
 		0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = WSLoggerDefine.1; sourceTree = "<group>"; };
@@ -40,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0D25ECB4179810C900C0F5EA /* libpthread.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,6 +53,7 @@
 		0D4A616B178425A400E89B30 = {
 			isa = PBXGroup;
 			children = (
+				0D25ECB3179810C900C0F5EA /* libpthread.dylib */,
 				0D4A6176178425A400E89B30 /* WSLoggerDefine */,
 				0D4A6175178425A400E89B30 /* Products */,
 			);
@@ -67,6 +72,7 @@
 			children = (
 				0D81AD42178BE88F0026FE2F /* makefile */,
 				0D4A6177178425A400E89B30 /* test.c */,
+				0D25ECD21798F19400C0F5EA /* mit_data_define.h */,
 				0D4A6180178425CF00E89B30 /* MITLogModule.h */,
 				0D4A6181178431FE00E89B30 /* MITLogModule.c */,
 				0D4A6179178425A400E89B30 /* WSLoggerDefine.1 */,

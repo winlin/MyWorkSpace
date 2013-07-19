@@ -16,6 +16,9 @@
 #define CONF_KNAME_MISSED_TIMES       "max_missed_feed_times"
 #define CONF_KNAME_FEED_PERIOD        "default_feed_period"
 #define CONF_KANME_PROCESSES          "default_process"
+#define CONF_KNAME_WD_PID             "current_pid"
+#define CONF_KANME_APPS_LIST          "monitored_apps_list"
+#define CONF_KNAME_APPS_COUNT         "monitored_apps_count"
 
 struct wd_configure* get_wd_configure(void)
 {
@@ -24,6 +27,13 @@ struct wd_configure* get_wd_configure(void)
         MITLog_DetPuts(MITLOG_LEVEL_ERROR, "calloc() struct wd_configure failed");
         return NULL;
     }
+    /** init the configure struct */
+    wd_conf->apps_list_head             = NULL;
+    wd_conf->current_pid                = getpid();
+    wd_conf->default_feed_period        = DEFAULT_FEED_PERIOD;
+    wd_conf->default_udp_port           = DEFAULT_UDP_PORT;
+    wd_conf->max_missed_feed_times      = DEFAULT_MAX_MISSED_FEED_TIMES;
+    wd_conf->monitored_apps_count       = 0;
     
     FILE *configue_fp = fopen(WD_FILE_PATH_APP WD_FILE_NAME_CONFIGURE, "r");
     if (configue_fp == NULL) {
@@ -35,14 +45,6 @@ struct wd_configure* get_wd_configure(void)
                 MITLog_DetErrPrintf("mkdir() failed");
                 goto FREE_CONFIGURE_TAG;
             }
-            
-            /** init the configure struct */
-            wd_conf->apps_list_head             = NULL;
-            wd_conf->current_pid                = getpid();
-            wd_conf->default_feed_period        = DEFAULT_FEED_PERIOD;
-            wd_conf->default_udp_port           = DEFAULT_UDP_PORT;
-            wd_conf->max_missed_feed_times      = DEFAULT_MAX_MISSED_FEED_TIMES;
-            
             /** write info into configure file */
             configue_fp = fopen(WD_FILE_PATH_APP WD_FILE_NAME_CONFIGURE, "w+");
             if (configue_fp == NULL) {
@@ -139,6 +141,7 @@ struct wd_configure* get_wd_configure(void)
                         }
                         tmp->next_node = node;
                     }
+                    wd_conf->monitored_apps_count++;
                     break;
                 }
             }
@@ -154,5 +157,35 @@ CLOSE_FILE_TAG:
 FREE_CONFIGURE_TAG:
     free(wd_conf);
     return NULL;
+}
+
+void print_wd_configure(struct wd_configure *wd_conf)
+{
+    MITLog_DetLogEnter
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON,
+                     "\n%-30s=%lu\n%-30s=%lu\n%-30s=%lu\n%-30s=%d\n%-30s=%u",
+                     CONF_KNAME_UDP_PORT, wd_conf->default_udp_port,
+                     CONF_KNAME_MISSED_TIMES, wd_conf->max_missed_feed_times,
+                     CONF_KNAME_FEED_PERIOD, wd_conf->default_feed_period,
+                     CONF_KNAME_WD_PID, wd_conf->current_pid,
+                     CONF_KNAME_APPS_COUNT, wd_conf->monitored_apps_count);
     
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "%s:", CONF_KANME_APPS_LIST);
+    struct monitor_app_info_node *tmp = wd_conf->apps_list_head;
+    while (tmp) {
+        MITLogWrite(MITLOG_LEVEL_COMMON, tmp->app_info.cmd_line);
+        tmp = tmp->next_node;
+    }
+    MITLog_DetLogExit
+}
+
+void free_wd_configure(struct wd_configure *wd_conf)
+{
+    struct monitor_app_info_node *iter_p = wd_conf->apps_list_head;
+    while (iter_p) {
+        struct monitor_app_info_node *tmp = iter_p;
+        free(tmp->app_info.cmd_line);
+        iter_p = tmp->next_node;
+        free(tmp);
+    }
 }

@@ -28,10 +28,10 @@ int main(int argc, const char * argv[])
     
     // 1. usage in one thread demo
     // at first in main thread call MITLogOpen()
-    MITLog_DetPuts(MITLOG_LEVEL_COMMON, "just have a try and feel the speed:write 30000 messages");
+    MITLog_DetPuts(MITLOG_LEVEL_COMMON, "just have a try and feel the speed:write 3000000 messages");
     time_t starttime = time(NULL);
     for (int i=MITLOG_INDEX_COMM_FILE; i<=MITLOG_INDEX_ERROR_FILE; ++i) {
-        for (int j=0; j < 10000; ++j) {
+        for (int j=0; j < 1000000; ++j) {
             MITLogWrite(MITLOG_LEVEL_COMMON, "This is for common:%d", j);
             MITLogWrite(MITLOG_LEVEL_WARNING, "This is for warning:%d", j);
             MITLogWrite(MITLOG_LEVEL_ERROR, "This is for error:%d", j);
@@ -44,7 +44,7 @@ int main(int argc, const char * argv[])
     
     // 2. test the thread safe
     MITLogOpen("ThreadTest", "./logs/");
-    puts("start thread safe test: two thread write into ThreadTest.comm for 1000 times");
+    puts("start thread safe test: two thread write into ThreadTest.comm for 10000 times");
     pthread_t oneThread, twoThread;
     int ret = 0;
     ret = pthread_create(&oneThread, NULL, tFucOne, NULL);
@@ -62,7 +62,7 @@ int main(int argc, const char * argv[])
     MITLogClose();
     
     // 3. test the process safe
-    puts("start process safe test: two process write into ProcessTest.comm for 1000 times");
+    puts("start process safe test: two process write into ProcessTest.comm for 10000 times");
     MITLogOpen("ProcessTest", "./logs");
     
     pid_t pid;
@@ -74,12 +74,12 @@ int main(int argc, const char * argv[])
     }
     else if (pid > 0) {
         // parent process
-        while (pInteger <= 1000 || childEnd == 0) {
-            if (pInteger <= 1000) {
+        while (pInteger <= 10000 || childEnd == 0) {
+            if (pInteger <= 10000) {
                 MITLogWrite(MITLOG_LEVEL_COMMON, "parent process :%d", pInteger);
                 pInteger += 2;
             }
-            usleep(random()%800);
+            usleep(random()%8000);
             if (waitpid(-1, NULL, WNOHANG) > 0) {
                 childEnd = 1;
             }
@@ -87,9 +87,9 @@ int main(int argc, const char * argv[])
         puts("end process safe test, you can use 'wc -l ProcessTest.comm' command to check the data's integerity");
     } else if (pid == 0) {
         // child process
-        for (int i=2; i<=1000; i+=2) {
+        for (int i=2; i<=10000; i+=2) {
             MITLogWrite(MITLOG_LEVEL_COMMON, "child process :%d", i);
-            usleep(random()%800);
+            usleep(random()%8000);
         }
     }
     MITLogClose();
@@ -98,16 +98,16 @@ int main(int argc, const char * argv[])
 
 void *tFucOne(void *arg)
 {
-    for (int i=1; i<=10000; i+=2) {
+    for (int i=1; i<=1000000; i+=2) {
         MITLogWrite(MITLOG_LEVEL_COMMON, "thread one :%d", i);
-        usleep(random()%800);
+        usleep(random()%8000);
     }
 }
 void *tFuncTwo(void *arg)
 {
-    for (int i=2; i<=10000; i+=2) {
+    for (int i=2; i<=1000000; i+=2) {
         MITLogWrite(MITLOG_LEVEL_COMMON, "thread two :%d", i);
-        usleep(random()%800);
+        usleep(random()%8000);
     }
 }
 

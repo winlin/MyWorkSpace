@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0DC46D96179411D100B8170A"
-               BuildableName = "UDPClient"
-               BlueprintName = "UDPClient"
-               ReferencedContainer = "container:UDPClient.xcodeproj">
+               BuildableName = "UnixDoaminUDPClient"
+               BlueprintName = "UnixDoaminUDPClient"
+               ReferencedContainer = "container:UnixDoaminUDPClient.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0DC46D96179411D100B8170A"
-            BuildableName = "UDPClient"
-            BlueprintName = "UDPClient"
-            ReferencedContainer = "container:UDPClient.xcodeproj">
+            BuildableName = "UnixDoaminUDPClient"
+            BlueprintName = "UnixDoaminUDPClient"
+            ReferencedContainer = "container:UnixDoaminUDPClient.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -52,9 +52,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0DC46D96179411D100B8170A"
-            BuildableName = "UDPClient"
-            BlueprintName = "UDPClient"
-            ReferencedContainer = "container:UDPClient.xcodeproj">
+            BuildableName = "UnixDoaminUDPClient"
+            BlueprintName = "UnixDoaminUDPClient"
+            ReferencedContainer = "container:UnixDoaminUDPClient.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0DC46D96179411D100B8170A"
-            BuildableName = "UDPClient"
-            BlueprintName = "UDPClient"
-            ReferencedContainer = "container:UDPClient.xcodeproj">
+            BuildableName = "UnixDoaminUDPClient"
+            BlueprintName = "UnixDoaminUDPClient"
+            ReferencedContainer = "container:UnixDoaminUDPClient.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

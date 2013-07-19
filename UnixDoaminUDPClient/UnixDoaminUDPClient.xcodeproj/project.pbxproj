@@ -26,7 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0DC46D97179411D100B8170A /* UDPClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UDPClient; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DC46D97179411D100B8170A /* UnixDoaminUDPClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnixDoaminUDPClient; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DC46D9A179411D100B8170A /* local_udp_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = local_udp_client.c; sourceTree = "<group>"; };
 		0DC46D9C179411D100B8170A /* UDPClient.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = UDPClient.1; sourceTree = "<group>"; };
 		0DC46DA3179411F300B8170A /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
@@ -47,7 +47,7 @@
 		0DC46D8E179411D100B8170A = {
 			isa = PBXGroup;
 			children = (
-				0DC46D99179411D100B8170A /* UDPClient */,
+				0DC46D99179411D100B8170A /* UnixDomainUDPClient */,
 				0DC46D98179411D100B8170A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -55,12 +55,12 @@
 		0DC46D98179411D100B8170A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0DC46D97179411D100B8170A /* UDPClient */,
+				0DC46D97179411D100B8170A /* UnixDoaminUDPClient */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0DC46D99179411D100B8170A /* UDPClient */ = {
+		0DC46D99179411D100B8170A /* UnixDomainUDPClient */ = {
 			isa = PBXGroup;
 			children = (
 				0DC46D9A179411D100B8170A /* local_udp_client.c */,
@@ -68,15 +68,16 @@
 				0DC46DA3179411F300B8170A /* MITLogModule.c */,
 				0DC46DA4179411F300B8170A /* MITLogModule.h */,
 			);
+			name = UnixDomainUDPClient;
 			path = UDPClient;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0DC46D96179411D100B8170A /* UDPClient */ = {
+		0DC46D96179411D100B8170A /* UnixDoaminUDPClient */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UDPClient" */;
+			buildConfigurationList = 0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UnixDoaminUDPClient" */;
 			buildPhases = (
 				0DC46D93179411D100B8170A /* Sources */,
 				0DC46D94179411D100B8170A /* Frameworks */,
@@ -86,9 +87,9 @@
 			);
 			dependencies = (
 			);
-			name = UDPClient;
+			name = UnixDoaminUDPClient;
 			productName = UDPClient;
-			productReference = 0DC46D97179411D100B8170A /* UDPClient */;
+			productReference = 0DC46D97179411D100B8170A /* UnixDoaminUDPClient */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -100,7 +101,7 @@
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = GT;
 			};
-			buildConfigurationList = 0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UDPClient" */;
+			buildConfigurationList = 0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UnixDoaminUDPClient" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -112,7 +113,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0DC46D96179411D100B8170A /* UDPClient */,
+				0DC46D96179411D100B8170A /* UnixDoaminUDPClient */,
 			);
 		};
 /* End PBXProject section */
@@ -190,21 +191,21 @@
 		0DC46DA1179411D100B8170A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = UnixDoaminUDPClient;
 			};
 			name = Debug;
 		};
 		0DC46DA2179411D100B8170A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = UnixDoaminUDPClient;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UDPClient" */ = {
+		0DC46D92179411D100B8170A /* Build configuration list for PBXProject "UnixDoaminUDPClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0DC46D9E179411D100B8170A /* Debug */,
@@ -213,7 +214,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UDPClient" */ = {
+		0DC46DA0179411D100B8170A /* Build configuration list for PBXNativeTarget "UnixDoaminUDPClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0DC46DA1179411D100B8170A /* Debug */,
