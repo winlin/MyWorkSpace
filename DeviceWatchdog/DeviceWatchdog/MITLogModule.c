@@ -44,6 +44,8 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+static int mit_log_opened_flag;
+
 #if MITLOG_DEBUG_ENABLE
 static char const *MITLogLevelHeads[]  = {"[COMMON]", "[WARNING]", "[ERROR]"};
 
@@ -76,7 +78,7 @@ static inline void MITGetLogFilePathPrefix(MITLogFileIndex aryIndex, char *chrAr
 }
 
 // get origin file size and next should be updated log file's name
-MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFile, long long *fileSize)
+MITFuncRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFile, long long *fileSize)
 {
     const char *fileSuffix = MITLogFileSuffix[aryIndex];
     
@@ -92,7 +94,7 @@ MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFil
     
     if ((dirfd = opendir(appLogFilePath)) == NULL) {
         MIT_derrprintf("opendir() faild");
-        return MITLOG_RETV_FAIL;
+        return MIT_RETV_FAIL;
     }
     // 1 mean the '.' between num and suffix. TestApp.comm.1
     long long partLen = strlen(applicationName) + strlen(fileSuffix) + 1;
@@ -112,7 +114,7 @@ MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFil
             struct stat tstat;
             if (stat(logfilepath, &tstat) < 0) {
                 MIT_derrprintf("stat() %s faild", logfilepath);
-                return MITLOG_RETV_FAIL;
+                return MIT_RETV_FAIL;
             } else {
                 *fileSize = tstat.st_size;
             }
@@ -128,7 +130,7 @@ MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFil
             struct stat tstat;
             if (stat(logfilepath, &tstat) < 0) {
                 MIT_derrprintf("stat() %s faild", logfilepath);
-                return MITLOG_RETV_FAIL;
+                return MIT_RETV_FAIL;
             }
             if (minModifyTime == 0 || tstat.st_mtime < minModifyTime) {
                 minModifyTime = tstat.st_mtime;
@@ -147,7 +149,7 @@ MITLogRetValue MITGetLogInfoByIndex(MITLogFileIndex aryIndex, char *nextStoreFil
     MIT_dprintf("currentMaxFileNum:%d  nextStoreFile:%s", currentMaxFileNum, nextStoreFile);
     closedir(dirfd);
    
-    return MITLOG_RETV_SUCCESS;
+    return MIT_RETV_SUCCESS;
 }
 
 // use to copy file
@@ -241,20 +243,26 @@ static inline MITLogFileIndex MITGetIndexForLevel(MITLogLevel level)
 }
 
 /*************************** MITLog Module Function ********************************/
-MITLogRetValue MITLogOpen(const char *appName, const char*logPath)
-{    
+MITFuncRetValue MITLogOpen(const char *appName, const char*logPath)
+{
+    /** this use to avoid double times to open log module */
+    if (mit_log_opened_flag == 1) {
+        return MIT_RETV_HAS_OPENED;
+    }
+    mit_log_opened_flag = 1;
+    
 #if MITLOG_DEBUG_ENABLE
     originFilePointers[MITLOG_INDEX_COMM_FILE] = stdout;
     originFilePointers[MITLOG_INDEX_WARN_FILE] = stderr;
     originFilePointers[MITLOG_INDEX_ERROR_FILE] = stderr;
-    return MITLOG_RETV_SUCCESS;
+    return MIT_RETV_SUCCESS;
 #else
     size_t pathLen = strlen(logPath);
     int maxPath = MITLOG_MAX_FILE_NAME_PATH_LEN - MITLOG_MAX_APP_NAME_LEN - 2;
     if (strlen(appName) == 0 || pathLen == 0 || pathLen > maxPath) {
         MIT_dprintf("ERROR: %s %d", "appName can't be empty; \
                     pathLen can't be empty and legth litter than", maxPath);
-        return MITLOG_RETV_ARG_EMPTY;
+        return MIT_RETV_PARAM_EMPTY;
     }
     memset(applicationName, 0, sizeof(applicationName));
     memset(appLogFilePath, 0, sizeof(appLogFilePath));
@@ -267,13 +275,13 @@ MITLogRetValue MITLogOpen(const char *appName, const char*logPath)
     int ret = pthread_rwlock_init(&bufferRWlock, NULL);
     if (ret != 0) {
         MIT_derrprintf("pthread_rwlock_init() failed:%d", ret);
-        return MITLOG_RETV_FAIL;
+        return MIT_RETV_FAIL;
     }
     // keep the log path exist
     ret = mkdir(appLogFilePath, S_IRWXU|S_IRWXG|S_IRWXO);
     if (ret == -1 && errno != EEXIST) {
         MIT_derrprintf("mkdir() failed:%d", ret);
-        return MITLOG_RETV_FAIL;
+        return MIT_RETV_FAIL;
     }
     // alloc memory
     for (int i = MITLOG_INDEX_COMM_FILE; i<= MITLOG_INDEX_ERROR_FILE; ++i) {
@@ -284,7 +292,7 @@ MITLogRetValue MITLogOpen(const char *appName, const char*logPath)
                 logFilePaths[j] = NULL;
             }
             MIT_derrprintf("Allocate memroy Faild");
-            return MITLOG_RETV_ALLOC_MEM_FAIL;
+            return MIT_RETV_ALLOC_MEM_FAIL;
         }
         logFileBuffer[i] = (char *)calloc(MITLogBufferMaxSize[i], sizeof(char));
         if (!logFileBuffer[i]) {
@@ -297,7 +305,7 @@ MITLogRetValue MITLogOpen(const char *appName, const char*logPath)
                 logFileBuffer[j] = NULL;
             }
             MIT_derrprintf("Allocate memroy Faild");
-            return MITLOG_RETV_ALLOC_MEM_FAIL;
+            return MIT_RETV_ALLOC_MEM_FAIL;
         }
     }
     // open files
@@ -316,22 +324,22 @@ MITLogRetValue MITLogOpen(const char *appName, const char*logPath)
                 originFilePointers[j] = NULL;
             }
             MIT_derrprintf("Open %s Faild", logFilePaths[i]);
-            return MITLOG_RETV_OPEN_FILE_FAIL;
+            return MIT_RETV_OPEN_FILE_FAIL;
         }
     }
         
-    return MITLOG_RETV_SUCCESS;
+    return MIT_RETV_SUCCESS;
 #endif
 }
 
-MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
+MITFuncRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
 {
     // 1. generate the string
     int n, size = 100;      // suppose the message need no more than 100 bytes
     char *tarp = NULL, *np = NULL;
     va_list ap;
     if ((tarp = malloc(size)) == NULL) {
-        return MITLOG_RETV_ALLOC_MEM_FAIL;
+        return MIT_RETV_ALLOC_MEM_FAIL;
     }
     while (1) {
         // try to print the allocated space
@@ -349,7 +357,7 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
         }
         if ((np = realloc(tarp, size)) == NULL) {
             free(tarp);
-            return MITLOG_RETV_ALLOC_MEM_FAIL;
+            return MIT_RETV_ALLOC_MEM_FAIL;
         } else {
             tarp = np;
         }
@@ -364,7 +372,7 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
     if (!tarMessage) {
         free(tarp);
         tarp = NULL;
-        return MITLOG_RETV_ALLOC_MEM_FAIL;
+        return MIT_RETV_ALLOC_MEM_FAIL;
     }
     sprintf(tarMessage, "%s %s\n", timeStr, tarp);
     sumLen = strlen(tarMessage);
@@ -420,7 +428,7 @@ MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...)
     free(tarMessage);
     tarMessage = NULL;
 #endif
-    return MITLOG_RETV_SUCCESS;
+    return MIT_RETV_SUCCESS;
 }
 
 void MITLogFlush(void)
@@ -435,6 +443,9 @@ void MITLogFlush(void)
 
 void MITLogClose(void)
 {
+    if (mit_log_opened_flag == 0) {
+        return;
+    }
 #ifndef MITLOG_DEBUG_ENABLE
     // 1. flush the buffers
     MITLogFlush();

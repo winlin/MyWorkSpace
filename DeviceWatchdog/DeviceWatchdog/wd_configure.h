@@ -9,6 +9,7 @@
 #ifndef DeviceWatchdog_wd_configure_h
 #define DeviceWatchdog_wd_configure_h
 
+#include "mit_data_define.h"
 #include <time.h>
 #include <unistd.h>
 
@@ -16,7 +17,7 @@
 
 #ifdef  WD_DEBUG
 #define WD_FILE_PATH_APP             "./"
-#define WD_FILE_PATH_LOG             "./log/"
+#define WD_FILE_PATH_LOG             "./logs/"
 #else
 #define WD_FILE_PATH_APP             "/sdcard/watchdog/"
 #define WD_FILE_PATH_LOG             "/sdcard/log/"
@@ -27,7 +28,7 @@
 #define WD_FILE_NAME_PID             "pid"
 
 #define    DEFAULT_FEED_PERIOD                  15  
-#define    DEFAULT_UDP_PORT                     9999
+#define    DEFAULT_UDP_PORT                     60000
 #define    DEFAULT_MAX_MISSED_FEED_TIMES        3
 
 struct monitor_app_info {
@@ -42,7 +43,6 @@ struct monitor_app_info {
 };
 
 struct monitor_app_info_node {
-    struct monitor_app_info_node *privious_node;
     struct monitor_app_info_node *next_node;
     struct monitor_app_info app_info;
 };
@@ -58,6 +58,7 @@ struct wd_configure {
     pid_t current_pid;
     /** monitored apps list */
     struct monitor_app_info_node *apps_list_head;
+    struct monitor_app_info_node *apps_list_tail;
     /** monitored apps count */
     unsigned int monitored_apps_count;
 };
@@ -80,4 +81,31 @@ void print_wd_configure(struct wd_configure *wd_conf);
  */
 void free_wd_configure(struct wd_configure *wd_conf);
 
+/**
+ */
+MITFuncRetValue start_libevent_udp_server(struct wd_configure *wd_conf);
+
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

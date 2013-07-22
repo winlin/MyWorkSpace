@@ -10,8 +10,9 @@
 		0D25EC9F1797A89600C0F5EA /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D25EC9E1797A89600C0F5EA /* main.c */; };
 		0D25ECA11797A89600C0F5EA /* DeviceWatchdog.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0D25ECA01797A89600C0F5EA /* DeviceWatchdog.1 */; };
 		0D25ECAB1797A92500C0F5EA /* libevent-2.0.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D25ECAA1797A92500C0F5EA /* libevent-2.0.5.dylib */; };
-		0D25ECB01797C43A00C0F5EA /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D25ECAE1797C43A00C0F5EA /* MITLogModule.c */; };
 		0D25ECB21797D28100C0F5EA /* wd_configure.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D25ECB11797D28100C0F5EA /* wd_configure.c */; };
+		0D4C9B13179CE11900917DD7 /* mit_data_define.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4C9B0F179CE11900917DD7 /* mit_data_define.c */; };
+		0D4C9B14179CE11900917DD7 /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D4C9B11179CE11900917DD7 /* MITLogModule.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,9 +34,11 @@
 		0D25ECA01797A89600C0F5EA /* DeviceWatchdog.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = DeviceWatchdog.1; sourceTree = "<group>"; };
 		0D25ECAA1797A92500C0F5EA /* libevent-2.0.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libevent-2.0.5.dylib"; path = "/usr/local/lib/libevent-2.0.5.dylib"; sourceTree = "<absolute>"; };
 		0D25ECAD1797AA3500C0F5EA /* wd_configure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wd_configure.h; sourceTree = "<group>"; };
-		0D25ECAE1797C43A00C0F5EA /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
-		0D25ECAF1797C43A00C0F5EA /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
 		0D25ECB11797D28100C0F5EA /* wd_configure.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wd_configure.c; sourceTree = "<group>"; };
+		0D4C9B0F179CE11900917DD7 /* mit_data_define.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mit_data_define.c; sourceTree = "<group>"; };
+		0D4C9B10179CE11900917DD7 /* mit_data_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mit_data_define.h; sourceTree = "<group>"; };
+		0D4C9B11179CE11900917DD7 /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
+		0D4C9B12179CE11900917DD7 /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,8 +75,10 @@
 				0D25EC9E1797A89600C0F5EA /* main.c */,
 				0D25ECAD1797AA3500C0F5EA /* wd_configure.h */,
 				0D25ECB11797D28100C0F5EA /* wd_configure.c */,
-				0D25ECAF1797C43A00C0F5EA /* MITLogModule.h */,
-				0D25ECAE1797C43A00C0F5EA /* MITLogModule.c */,
+				0D4C9B0F179CE11900917DD7 /* mit_data_define.c */,
+				0D4C9B10179CE11900917DD7 /* mit_data_define.h */,
+				0D4C9B11179CE11900917DD7 /* MITLogModule.c */,
+				0D4C9B12179CE11900917DD7 /* MITLogModule.h */,
 				0D25ECAC1797A93E00C0F5EA /* Resources */,
 			);
 			path = DeviceWatchdog;
@@ -140,8 +145,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D25EC9F1797A89600C0F5EA /* main.c in Sources */,
-				0D25ECB01797C43A00C0F5EA /* MITLogModule.c in Sources */,
 				0D25ECB21797D28100C0F5EA /* wd_configure.c in Sources */,
+				0D4C9B13179CE11900917DD7 /* mit_data_define.c in Sources */,
+				0D4C9B14179CE11900917DD7 /* MITLogModule.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

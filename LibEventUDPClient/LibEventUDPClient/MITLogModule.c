@@ -44,6 +44,8 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+static int mit_log_opened_flag;
+
 #if MITLOG_DEBUG_ENABLE
 static char const *MITLogLevelHeads[]  = {"[COMMON]", "[WARNING]", "[ERROR]"};
 
@@ -242,7 +244,13 @@ static inline MITLogFileIndex MITGetIndexForLevel(MITLogLevel level)
 
 /*************************** MITLog Module Function ********************************/
 MITFuncRetValue MITLogOpen(const char *appName, const char*logPath)
-{    
+{
+    /** this use to avoid double times to open log module */
+    if (mit_log_opened_flag == 1) {
+        return MIT_RETV_HAS_OPENED;
+    }
+    mit_log_opened_flag = 1;
+    
 #if MITLOG_DEBUG_ENABLE
     originFilePointers[MITLOG_INDEX_COMM_FILE] = stdout;
     originFilePointers[MITLOG_INDEX_WARN_FILE] = stderr;
@@ -435,6 +443,9 @@ void MITLogFlush(void)
 
 void MITLogClose(void)
 {
+    if (mit_log_opened_flag == 0) {
+        return;
+    }
 #ifndef MITLOG_DEBUG_ENABLE
     // 1. flush the buffers
     MITLogFlush();

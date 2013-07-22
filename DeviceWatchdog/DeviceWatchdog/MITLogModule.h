@@ -25,9 +25,9 @@
 #ifndef MITLogMoudle_H
 #define MITLogMoudle_H
 
-#include <errno.h>
+#include "mit_data_define.h"
 #include <string.h>
-
+#include <errno.h>
 /** debug switch macro */
 /**
  * If define the marco all message will be printed into stdout/stderr.
@@ -65,27 +65,15 @@ typedef enum MITLogMaxSize {
     MITLOG_MAX_ERROR_BUFFER_SIZE     = 1024           // 1KB
 }MITLogMaxSize;
 
-typedef enum MITLogRetValue {
-    MITLOG_RETV_SUCCESS              = 0,
-    MITLOG_RETV_FAIL                 = -1,
-    MITLOG_RETV_ARG_EMPTY            = -100,
-    MITLOG_RETV_OPEN_FILE_FAIL       = -101,
-    MITLOG_RETV_ALLOC_MEM_FAIL       = -102
-} MITLogRetValue;
-
 /**
  * This function should be called before use the MITLog module.
  * @param: appName     The name of application;
  *                     If the length bigger than MITLOG_MAX_APP_NAME_LEN,
  *                     the name will be truncated.
- * @returns: MITLOG_RETV_OPEN_SUCCESS
- *           MITLOG_RETV_ARG_EMPTY
- *           MITLOG_RETV_OPEN_FILE_FAIL
- *           MITLOG_RETV_ALLOC_MEM_FAIL
- *           MITLOG_RETV_DUP_FAIL
+ * @returns: enum MITFuncRetValue
  *
  */
-MITLogRetValue MITLogOpen(const char *appName, const char*logPath);
+MITFuncRetValue MITLogOpen(const char *appName, const char*logPath);
 
 /**
  * This function log the message into files or stdout/stderr 
@@ -95,7 +83,7 @@ MITLogRetValue MITLogOpen(const char *appName, const char*logPath);
  *           MITLOG_RETV_SUCCESS
  *
  */
-MITLogRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...);
+MITFuncRetValue MITLogWrite(MITLogLevel level, const char *fmt, ...);
 
 /**
  * These macro defination can be used print more detail info with __func__ and __LINE__

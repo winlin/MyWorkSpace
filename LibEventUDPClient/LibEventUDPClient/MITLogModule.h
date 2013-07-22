@@ -26,7 +26,8 @@
 #define MITLogMoudle_H
 
 #include "mit_data_define.h"
-
+#include <string.h>
+#include <errno.h>
 /** debug switch macro */
 /**
  * If define the marco all message will be printed into stdout/stderr.

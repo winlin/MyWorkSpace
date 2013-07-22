@@ -16,25 +16,30 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <time.h>
+#include <fcntl.h>
 #include <event2/event.h>
 #include <event2/event_struct.h>
-#include <pthread.h>
+#include <event2/event-config.h>
+#include <event2/util.h>
 
 /**
  * Use the macro temporary for test.
  * We read the port from the watchdog's port file late.
  */
-#define UDP_PORT_SER       9999
-#define UDP_PORT_SELF      9998
+#define UDP_PORT_SER       60000
+#define UDP_PORT_SELF      60001
 #define UDP_IP_SER         "127.0.0.1"
+#define UDP_IP_CLIENT      "127.0.0.1"
 
-#define MAX_UDP_PG_SIZE    512
-
-
-static struct sockaddr_in addr_self, addr_server;
+static int app_socket_fd;
+static struct sockaddr_in addr_server;
 static struct feed_thread_configure *feed_configure;
+static struct event timeout;
+static struct timeval tv;
 
-void wd_send_register_pg(int socket_fd)
+void wd_send_register_pg(evutil_socket_t fd, struct sockaddr_in *tar_addr)
 {
     int pg_len = 0;
     void *pg_reg = wd_pg_register_new(&pg_len,
@@ -43,35 +48,76 @@ void wd_send_register_pg(int socket_fd)
                                       (int)strlen(feed_configure->cmd_line),
                                       feed_configure->cmd_line);
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "register pg len:%d  content:%s", pg_len, pg_reg);
-    
-    ssize_t ret = sendto(socket_fd, pg_reg,
-                         (size_t)pg_len, 0,
-                         (struct sockaddr *)&addr_server,
-                         sizeof(addr_server));
-    if (ret < 0) {
-        MITLog_DetErrPrintf("sendto() failed");
+    if (pg_reg > 0) {
+        ssize_t ret = sendto(fd, pg_reg,
+                             (size_t)pg_len, 0,
+                             (struct sockaddr *)tar_addr,
+                             sizeof(struct sockaddr_in));
+        if (ret < 0) {
+            MITLog_DetErrPrintf("sendto() failed");
+        }
+        free(pg_reg);
+    } else {
+         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_register_new() failed");
     }
 }
 
-void socket_ev_r_handle(evutil_socket_t fd, short ev_type, void *data)
+void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
 {
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send feed package once");
+    int pg_len = 0;
+    struct wd_pg_feed *feed_pg = wd_pg_feed_new(&pg_len, feed_configure->monitored_pid);
+    if (feed_pg) {
+        ssize_t ret = sendto(app_socket_fd, feed_pg,
+                             (size_t)pg_len, 0,
+                             (struct sockaddr *)&addr_server,
+                             sizeof(addr_server));
+        if (ret < 0) {
+            MITLog_DetErrPrintf("sendto() failed");
+        }
+        free(feed_pg);
+    } else {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_feed_new() failed");
+    }
+}
+
+void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
+{
+    MITLog_DetPuts(MITLOG_LEVEL_COMMON, "There is a package recieved");
     if (ev_type & EV_READ) {
+        struct event_base *ev_base = ((struct event *)data)->ev_base;
         char msg[MAX_UDP_PG_SIZE] = {0};
-        ssize_t len = recvfrom(fd, msg, sizeof(msg)-1, 0, NULL, NULL);
+        struct sockaddr_in src_addr;
+        socklen_t addrlen = sizeof(src_addr);
+        ssize_t len = recvfrom(fd, msg, sizeof(msg)-1, 0, (struct sockaddr *)&src_addr, &addrlen);
         if (len > 0) {
             MITWatchdogPgCmd cmd = wd_get_net_package_cmd(msg);
             MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get Server CMD:%d", cmd);
-            if (cmd == WD_PG_CMD_REGISTER) {
-                struct wd_pg_return_feed *ret_feed_pg = wd_pg_return_feed_unpg(msg, (int)len);
-                if (ret_feed_pg == NULL ||
-                    ret_feed_pg->error != WD_PG_ERR_SUCCESS) {
-                    // re-send the register package
-                    wd_send_register_pg(fd);
-                } else {
-                    // TODO: start a timer to feed regularly
+            
+            struct wd_pg_return *ret_pg = wd_pg_return_unpg(msg, (int)len);
+            if (ret_pg) {
+                if (cmd == WD_PG_CMD_REGISTER) {
+                    if (ret_pg->error != WD_PG_ERR_SUCCESS) {
+                        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send rigister package failed, so package will be sent again");
+                        wd_send_register_pg(fd, &src_addr);
+                    } else {
+                        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "great! rigister success, now feed timer will start");
+                        event_assign(&timeout, ev_base, -1, EV_PERSIST, timeout_cb, &timeout);
+                        evutil_timerclear(&tv);
+                        tv.tv_sec = feed_configure->feed_period;
+                        event_add(&timeout, &tv);
+                    }
+                } else if (cmd == WD_PG_CMD_FEED) {
+                    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get Server Feed Back");
+                    if (ret_pg->error != WD_PG_ERR_SUCCESS) {
+                        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send feed package failed:%d", ret_pg->error);
+                    } else {
+                        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send feed package success");
+                    }
                 }
-            } else if (cmd == WD_PG_CMD_FEED) {
-                // TODO: check the error num
+                free(ret_pg);
+            } else {
+                MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_return_unpg() failed");
             }
         }
     }
@@ -79,28 +125,23 @@ void socket_ev_r_handle(evutil_socket_t fd, short ev_type, void *data)
 
 void *start_libevent_udp_feed(void *arg)
 {    
-    int socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (socket_fd < 0) {
+    app_socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (app_socket_fd < 0) {
         MITLog_DetErrPrintf("socket() failed");
         goto THREAD_EXIT_TAG;
     }
+    int set_value = 1;
+    if(setsockopt(app_socket_fd, SOL_SOCKET, SO_REUSEPORT, (void *)&set_value, sizeof(set_value)) < 0) {
+        MITLog_DetErrPrintf("setsockopt() failed");
+    }
+    if (fcntl(app_socket_fd, F_SETFD, FD_CLOEXEC) < 0) {
+        MITLog_DetErrPrintf("fcntl() failed");
+    }
     
-    memset(&addr_self, 0, sizeof(addr_self));
     memset(&addr_server, 0, sizeof(addr_server));
-    
-    addr_self.sin_family        = AF_INET;
-    addr_self.sin_port          = htons(UDP_PORT_SELF);
-    /** any local network card is ok */
-    addr_self.sin_addr.s_addr   = inet_addr(INADDR_ANY);  
-    
     addr_server.sin_family      = AF_INET;
     addr_server.sin_port        = htons(UDP_PORT_SER);
     addr_server.sin_addr.s_addr = inet_addr(UDP_IP_SER);
-    
-    if (bind(socket_fd, (struct sockaddr*)&addr_self, sizeof(addr_self)) < 0) {
-        MITLog_DetErrPrintf("bind() failed");
-        goto CLOSE_FD_TAG;
-    }
     
     struct event_base *ev_base = event_base_new();
     if (!ev_base) {
@@ -109,14 +150,14 @@ void *start_libevent_udp_feed(void *arg)
     }
     
     struct event socket_ev_r;
-    event_assign(&socket_ev_r, ev_base, socket_fd, EV_READ|EV_PERSIST, socket_ev_r_handle, &socket_ev_r);
+    event_assign(&socket_ev_r, ev_base, app_socket_fd, EV_READ|EV_PERSIST, socket_ev_r_cb, &socket_ev_r);
     if (event_add(&socket_ev_r, NULL) < 0) {
         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "couldn't add an event");
         goto EVENT_BASE_FREE_TAG;
     }
     
     // send the register package
-    wd_send_register_pg(socket_fd);
+    wd_send_register_pg(app_socket_fd, &addr_server);
     
     event_base_dispatch(ev_base);
     event_base_free(ev_base);
@@ -124,7 +165,7 @@ void *start_libevent_udp_feed(void *arg)
 EVENT_BASE_FREE_TAG:
     event_base_free(ev_base);
 CLOSE_FD_TAG:
-    close(socket_fd);
+    close(app_socket_fd);
 THREAD_EXIT_TAG:
     pthread_exit(NULL);
 }
