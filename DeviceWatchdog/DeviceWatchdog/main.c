@@ -45,6 +45,6 @@ int main(int argc, const char * argv[])
     free_wd_configure(wd_conf);    
 CLOSE_LOG_TAG:
     MITLogClose();
-    return -1;
+    return ret;
 }
 

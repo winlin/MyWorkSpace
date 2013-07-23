@@ -23,12 +23,16 @@ int main(int argc, const char * argv[])
     th_conf.feed_period = 5;
     th_conf.monitored_pid = getpid();
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Start the feed thread:cmd=%s", th_conf.cmd_line);
-    pthread_t pthread;
-    create_feed_thread(&pthread, &th_conf);
-    
-    while (1) {
-        //MITLog_DetPuts(MITLOG_LEVEL_COMMON, "The main thread rotate one time per 3 seconds");
+    create_feed_thread(&th_conf);
+    int i = 0;
+    while (i++ < 5) {
+        MITLog_DetPuts(MITLOG_LEVEL_COMMON, "The main thread rotate one time per 3 seconds");
         sleep(3);
+    }
+    
+    MITFuncRetValue ret = unregister_watchdog();
+    if (ret != MIT_RETV_SUCCESS) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "Unregister app failed! Watchdog will restart the app later");
     }
     MITLogClose();
     return 0;

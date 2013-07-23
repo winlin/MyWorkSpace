@@ -21,12 +21,18 @@ struct feed_thread_configure {
 
 /**
  * Create the feed thread.
- *
- * @param thread        : the pthread_t variable;
+ * !!! The function will call pthread_detach(), so it resource will be
+ *     auto released by system; if pthread_detach() failed, pthread_kill(SIGKILL)
+ *     will be called.!!!
  * @param feed_conf     : the configuration of the package,
  *                        the thread is responsible to relase the object;
  * @return MITFuncRetValue
  */
-MITFuncRetValue create_feed_thread(pthread_t *thread, struct feed_thread_configure *feed_conf);
+MITFuncRetValue create_feed_thread(struct feed_thread_configure *feed_conf);
+
+/**
+ * Unregister the app from watchdog.
+ */
+MITFuncRetValue unregister_watchdog();
 
 #endif

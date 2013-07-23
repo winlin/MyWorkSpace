@@ -8,6 +8,7 @@
 #ifndef MIT_DATA_DEFINE_H
 #define MIT_DATA_DEFINE_H
 
+#include <string.h>
 
 #define MAX_UDP_PG_SIZE    512
 
@@ -50,7 +51,11 @@ struct wd_pg_return {
     short   error;
 };
 
-struct wd_pg_feed {
+/**
+ * The feed and unregister package both use this structure.
+ * cmd: WD_PG_CMD_FEED/WD_PG_CMD_UNREGISTER
+ */
+struct wd_pg_action {
     short   cmd;
     short   reserved;
     int     pid;
@@ -92,7 +97,7 @@ void *wd_pg_register_new(int *pg_len, int pid, short period, int cmd_len, char *
 struct wd_pg_register *wd_pg_register_unpg(void *pg, int pg_len);
 
 /**
- * Create a new watchdog feed package.
+ * Create a new watchdog action package.
  *
  * @param pg_len    : the length of the package;
  * @param pid       : the register's process id;
@@ -100,17 +105,17 @@ struct wd_pg_register *wd_pg_register_unpg(void *pg, int pg_len);
  *         and the *pg_len will be set the length of the package;
  *         on error NULL will be returned
  */
-void *wd_pg_feed_new(int *pg_len, int pid);
+void *wd_pg_action_new(int *pg_len, MITWatchdogPgCmd cmd, int pid);
 
 /**
- * Unpackage a new watchdog feed package.
+ * Unpackage a new watchdog action package.
  *
  * @param pg        : the pointer of the package;
  * @param pg_len    : the length of the package;
  * @return on success the package point will be return,
  *         on error NULL will be returned
  */
-struct wd_pg_feed *wd_pg_feed_unpg(void *pg, int pg_len);
+struct wd_pg_action *wd_pg_action_unpg(void *pg, int pg_len);
 
 /**
  * Create a new watchdog return package.
@@ -121,7 +126,7 @@ struct wd_pg_feed *wd_pg_feed_unpg(void *pg, int pg_len);
  *         and the *pg_len will be set the length of the package;
  *         on error NULL will be returned
  */
-void *wd_pg_return_new(int *pg_len, short cmd, short error_num);
+void *wd_pg_return_new(int *pg_len, MITWatchdogPgCmd cmd, short error_num);
 
 /**
  * Unpackage a new watchdog return package.
@@ -133,8 +138,14 @@ void *wd_pg_return_new(int *pg_len, short cmd, short error_num);
  */
 struct wd_pg_return *wd_pg_return_unpg(void *pg, int pg_len);
 
-
-
+/*********************** Tools Function ************************/
+/**
+ * This function strip space from string both on head and tail
+ * If there is space the memory will be realloc.
+ *
+ * @return the new string lenght will return.
+ */
+size_t strip_string_space(char **tar_str);
 #endif
 
 
