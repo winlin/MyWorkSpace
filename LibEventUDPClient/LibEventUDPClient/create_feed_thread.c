@@ -46,6 +46,7 @@ typedef enum WDConfirmedUnregFlag {
     WD_CONF_UNREG_SER_HAS_CONF  = 2
 } WDConfirmedUnregFlag;
 static WDConfirmedUnregFlag wd_confirmed_unreg_flag;
+static pthread_mutex_t conf_mutex;
 
 void wd_send_register_pg(evutil_socket_t fd, struct sockaddr_in *tar_addr)
 {
@@ -132,7 +133,9 @@ void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
                 } else if (cmd == WD_PG_CMD_SELF_UNREG) {
                     MITLog_DetPuts(MITLOG_LEVEL_COMMON, "Get self unregister signal");
                     // TODO: send unregister package
+                    pthread_mutex_lock(&conf_mutex);
                     wd_confirmed_unreg_flag = WD_CONF_UNREG_SER_NOT_CONF;
+                    pthread_mutex_unlock(&conf_mutex);
                     wd_send_action_pg(fd, WD_PG_CMD_UNREGISTER, &addr_server);
                 } else if (cmd == WD_PG_CMD_UNREGISTER) {
                     MITLog_DetPuts(MITLOG_LEVEL_COMMON, "Get Server Unregister Feed Back");
@@ -142,7 +145,9 @@ void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
                         wd_send_action_pg(fd, WD_PG_CMD_UNREGISTER, &addr_server);
                     } else {
                         MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send unregister package success");
+                        pthread_mutex_lock(&conf_mutex);
                         wd_confirmed_unreg_flag = WD_CONF_UNREG_SER_HAS_CONF;
+                        pthread_mutex_unlock(&conf_mutex);
                         if(event_base_loopbreak(ev_base) < 0) {
                             MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "event_base_loopbreak() failed.\
                                              thread will exit.");
@@ -160,7 +165,6 @@ void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
 
 void *start_libevent_udp_feed(void *arg)
 {
-    wd_confirmed_unreg_flag = WD_CONF_UNREG_SELF_NOT_SNED;
     app_socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (app_socket_fd < 0) {
         MITLog_DetErrPrintf("socket() failed");
@@ -227,7 +231,9 @@ MITFuncRetValue unregister_watchdog()
     MITFuncRetValue ret = MIT_RETV_FAIL;
     int wait_time = 0;
     while (wait_time++ < 10) {
+        pthread_mutex_lock(&conf_mutex);
         if (wd_confirmed_unreg_flag == WD_CONF_UNREG_SELF_NOT_SNED) {
+            pthread_mutex_unlock(&conf_mutex);
             struct sockaddr_in addr_self;
             socklen_t addr_len = sizeof(addr_self);
             if (getsockname(app_socket_fd, (struct sockaddr *)&addr_self, &addr_len) < 0) {
@@ -252,15 +258,20 @@ MITFuncRetValue unregister_watchdog()
             }
             free(self_unreg_pg);
         } else if(wd_confirmed_unreg_flag == WD_CONF_UNREG_SER_NOT_CONF) {
+            pthread_mutex_unlock(&conf_mutex);
             MITLog_DetPuts(MITLOG_LEVEL_COMMON, "Wait watchdog to confirm unregistering");
         } else if (wd_confirmed_unreg_flag == WD_CONF_UNREG_SER_HAS_CONF) {
+            pthread_mutex_unlock(&conf_mutex);
             ret = MIT_RETV_SUCCESS;
             goto RETURN_FUNC_TAG;
+        } else {
+            pthread_mutex_unlock(&conf_mutex);
         }
         sleep(2);
     }
     
 RETURN_FUNC_TAG:
+    pthread_mutex_destroy(&conf_mutex);
     return ret;
 }
 
@@ -273,6 +284,13 @@ MITFuncRetValue create_feed_thread(struct feed_thread_configure *feed_conf)
         return MIT_RETV_PARAM_EMPTY;
     }
     feed_configure = feed_conf;
+    if(pthread_mutex_init(&conf_mutex, NULL) != 0){
+        MITLog_DetErrPrintf("pthread_mutex_init() failed");
+    }
+    pthread_mutex_lock(&conf_mutex);
+    wd_confirmed_unreg_flag = WD_CONF_UNREG_SELF_NOT_SNED;
+    pthread_mutex_unlock(&conf_mutex);
+    
     int ret = pthread_create(&thread, NULL, start_libevent_udp_feed, NULL);
     if (ret != 0) {
         MITLog_DetErrPrintf("pthread_create() failed");
