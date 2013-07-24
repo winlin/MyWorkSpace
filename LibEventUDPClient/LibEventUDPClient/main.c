@@ -20,12 +20,13 @@ int main(int argc, const char * argv[])
     
     struct feed_thread_configure th_conf;
     th_conf.cmd_line = "./LibEventUDPClient";
+    th_conf.app_name = "AppOne";
     th_conf.feed_period = 5;
     th_conf.monitored_pid = getpid();
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Start the feed thread:cmd=%s", th_conf.cmd_line);
     create_feed_thread(&th_conf);
     int i = 0;
-    while (i++ < 5) {
+    while (i++ < 300) {
         MITLog_DetPuts(MITLOG_LEVEL_COMMON, "The main thread rotate one time per 3 seconds");
         sleep(3);
     }

@@ -39,35 +39,54 @@ static struct sockaddr_in addr_server;
 static struct feed_thread_configure *feed_configure;
 static struct event timeout;
 static struct timeval tv;
+static int miss_feedback_times;
 
 typedef enum WDConfirmedUnregFlag {
     WD_CONF_UNREG_SELF_NOT_SNED = 0,
     WD_CONF_UNREG_SER_NOT_CONF  = 1,
-    WD_CONF_UNREG_SER_HAS_CONF  = 2
+    WD_CONF_UNREG_SER_HAS_CONF  = 2,
+    WD_CONF_REG_NOT_CONF        = 3,
+    WD_CONF_REG_HAS_CONF        = 4
 } WDConfirmedUnregFlag;
 static WDConfirmedUnregFlag wd_confirmed_unreg_flag;
+static WDConfirmedUnregFlag wd_confirmed_register;
 static pthread_mutex_t conf_mutex;
 
-void wd_send_register_pg(evutil_socket_t fd, struct sockaddr_in *tar_addr)
+void wd_send_register_pg(evutil_socket_t fd)
 {
-    int pg_len = 0;
-    void *pg_reg = wd_pg_register_new(&pg_len,
-                                      feed_configure->monitored_pid,
-                                      feed_configure->feed_period,
-                                      (int)strlen(feed_configure->cmd_line),
-                                      feed_configure->cmd_line);
-    if (pg_reg > 0) {
-        ssize_t ret = sendto(fd, pg_reg,
-                             (size_t)pg_len, 0,
-                             (struct sockaddr *)tar_addr,
-                             sizeof(struct sockaddr_in));
-        if (ret < 0) {
-            MITLog_DetErrPrintf("sendto() failed");
+    // read from watchdog port file to get port
+    FILE *fp = fopen(WD_FILE_PATH_APP WD_FILE_NAME_PORT, "r");
+    if (fp == NULL) {
+        return;
+    }
+    char wd_port_char[16] = {0};
+    int wd_port = 0;
+    fread(wd_port_char, sizeof(char), sizeof(wd_port_char), fp);
+    sscanf(wd_port_char, "%d", &wd_port);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get Watchdog port:%d", wd_port);
+    if (wd_port > 0) {
+        memset(&addr_server, 0, sizeof(addr_server));
+        addr_server.sin_family      = AF_INET;
+        addr_server.sin_port        = htons(wd_port);
+        addr_server.sin_addr.s_addr = inet_addr(UDP_IP_SER);
+        
+        int pg_len = 0;
+        void *pg_reg = wd_pg_register_new(&pg_len, feed_configure);
+        if (pg_reg > 0) {
+            ssize_t ret = sendto(fd, pg_reg,
+                                 (size_t)pg_len, 0,
+                                 (struct sockaddr *)&addr_server,
+                                 sizeof(struct sockaddr_in));
+            if (ret < 0) {
+                MITLog_DetErrPrintf("sendto() failed");
+            }
+            MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "register pg len:%d", pg_len);
+            free(pg_reg);
+        } else {
+            MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_register_new() failed");
         }
-         MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "register pg len:%d", pg_len);
-        free(pg_reg);
     } else {
-         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_register_new() failed");
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "Get Watchdog port failed");
     }
 }
 
@@ -76,7 +95,7 @@ void wd_send_action_pg(evutil_socket_t fd, MITWatchdogPgCmd cmd, struct sockaddr
     int pg_len = 0;
     void *action_pg = wd_pg_action_new(&pg_len, cmd, feed_configure->monitored_pid);
     if (action_pg) {
-        ssize_t ret = sendto(app_socket_fd, action_pg,
+        ssize_t ret = sendto(fd, action_pg,
                              (size_t)pg_len, 0,
                              (struct sockaddr *)tar_addr,
                              sizeof(*tar_addr));
@@ -91,8 +110,18 @@ void wd_send_action_pg(evutil_socket_t fd, MITWatchdogPgCmd cmd, struct sockaddr
 
 void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
 {
-    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send feed package once");
-    wd_send_action_pg(fd, WD_PG_CMD_FEED, &addr_server);
+    if (wd_confirmed_register == WD_CONF_REG_NOT_CONF) {
+        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send register package once");
+        wd_send_register_pg(app_socket_fd);
+    } else if (wd_confirmed_register == WD_CONF_REG_HAS_CONF) {
+        if (miss_feedback_times < MAX_MISS_FEEDBACK_TIMES) {
+            ++miss_feedback_times;
+            MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send feed package once");
+            wd_send_action_pg(app_socket_fd, WD_PG_CMD_FEED, &addr_server);
+        } else {
+            wd_confirmed_register = WD_CONF_REG_NOT_CONF;
+        }
+    }
 }
 
 void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
@@ -113,26 +142,25 @@ void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
                 if (cmd == WD_PG_CMD_REGISTER) {
                     if (ret_pg->error != WD_PG_ERR_SUCCESS) {
                         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send rigister package failed, so package will be sent again");
-                        wd_send_register_pg(fd, &src_addr);
+                        wd_send_register_pg(fd);
                     } else {
-                        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "great! rigister success, now feed timer will start");
-                        if (tv.tv_sec == 0) { // avoid double add time event
-                            event_assign(&timeout, ev_base, -1, EV_PERSIST, timeout_cb, &timeout);
-                            evutil_timerclear(&tv);
-                            tv.tv_sec = feed_configure->feed_period;
-                            event_add(&timeout, &tv);
-                        }
+                        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "great! rigister success");
+                        wd_confirmed_register = WD_CONF_REG_HAS_CONF;
+                        miss_feedback_times = 0;
                     }
                 } else if (cmd == WD_PG_CMD_FEED) {
                     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get Server Feed Back");
                     if (ret_pg->error != WD_PG_ERR_SUCCESS) {
-                        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send feed package failed:%d", ret_pg->error);
+                        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send feed package failed:%d \
+                                         and rigister package will resend", ret_pg->error);
+                        wd_send_register_pg(fd);
                     } else {
                         MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "send feed package success");
+                        miss_feedback_times = 0;
                     }
                 } else if (cmd == WD_PG_CMD_SELF_UNREG) {
                     MITLog_DetPuts(MITLOG_LEVEL_COMMON, "Get self unregister signal");
-                    // TODO: send unregister package
+                    /** send unregister package */
                     if(pthread_mutex_lock(&conf_mutex) != 0) {
                         MITLog_DetErrPrintf("pthread_mutex_lock() failed");
                     }
@@ -140,10 +168,10 @@ void socket_ev_r_cb(evutil_socket_t fd, short ev_type, void *data)
                     if(pthread_mutex_unlock(&conf_mutex) != 0) {
                         MITLog_DetErrPrintf("pthread_mutex_unlock() failed");
                     }
-                    wd_send_action_pg(fd, WD_PG_CMD_UNREGISTER, &addr_server);
+                    wd_send_action_pg(app_socket_fd, WD_PG_CMD_UNREGISTER, &addr_server);
                 } else if (cmd == WD_PG_CMD_UNREGISTER) {
                     MITLog_DetPuts(MITLOG_LEVEL_COMMON, "Get Server Unregister Feed Back");
-                    // TODO: handle unregister
+                    /** handle unregister */
                     if (ret_pg->error != WD_PG_ERR_SUCCESS) {
                         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "send unregister package failed:%d", ret_pg->error);
                         wd_send_action_pg(fd, WD_PG_CMD_UNREGISTER, &addr_server);
@@ -186,11 +214,6 @@ void *start_libevent_udp_feed(void *arg)
         MITLog_DetErrPrintf("fcntl() failed");
     }
     
-    memset(&addr_server, 0, sizeof(addr_server));
-    addr_server.sin_family      = AF_INET;
-    addr_server.sin_port        = htons(UDP_PORT_SER);
-    addr_server.sin_addr.s_addr = inet_addr(UDP_IP_SER);
-    
     /**
      * To get the app's local port so we bind first
      */
@@ -219,9 +242,11 @@ void *start_libevent_udp_feed(void *arg)
         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "couldn't add socket event");
         goto EVENT_BASE_FREE_TAG;
     }
-    
-    // send the register package
-    wd_send_register_pg(app_socket_fd, &addr_server);
+    // add time event
+    event_assign(&timeout, ev_base, -1, EV_PERSIST, timeout_cb, &timeout);
+    evutil_timerclear(&tv);
+    tv.tv_sec = feed_configure->feed_period;
+    event_add(&timeout, &tv);
     
     event_base_dispatch(ev_base);
     
@@ -236,7 +261,7 @@ THREAD_EXIT_TAG:
 MITFuncRetValue unregister_watchdog()
 {
     MITLog_DetLogEnter
-    MITFuncRetValue ret = MIT_RETV_FAIL;
+    MITFuncRetValue ret = MIT_RETV_SUCCESS;
     int wait_time = 0;
     while (wait_time++ < 10) {
         if(pthread_mutex_lock(&conf_mutex) != 0) {
@@ -258,7 +283,7 @@ MITFuncRetValue unregister_watchdog()
             void *self_unreg_pg = wd_pg_return_new(&pg_len, WD_PG_CMD_SELF_UNREG, WD_PG_ERR_SUCCESS);
             if (self_unreg_pg == NULL) {
                 MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "wd_pg_return_new() failed");
-                ret = MIT_RETV_SUCCESS;
+                ret = MIT_RETV_FAIL;
                 goto RETURN_FUNC_TAG;
             }
             ssize_t len = sendto(app_socket_fd, self_unreg_pg,
@@ -302,6 +327,8 @@ MITFuncRetValue create_feed_thread(struct feed_thread_configure *feed_conf)
         return MIT_RETV_PARAM_EMPTY;
     }
     feed_configure = feed_conf;
+    wd_confirmed_register = WD_CONF_REG_NOT_CONF;
+    miss_feedback_times = 0;
     if(pthread_mutex_init(&conf_mutex, NULL) != 0){
         MITLog_DetErrPrintf("pthread_mutex_init() failed");
     }

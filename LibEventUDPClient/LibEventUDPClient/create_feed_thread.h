@@ -13,17 +13,12 @@
 #include "mit_data_define.h"
 #include <sys/types.h>
 
-struct feed_thread_configure {
-    pid_t               monitored_pid;
-    unsigned long int   feed_period;
-    char *              cmd_line;
-};
-
 /**
  * Create the feed thread.
  * !!! The function will call pthread_detach(), so it resource will be
  *     auto released by system; if pthread_detach() failed, pthread_kill(SIGKILL)
- *     will be called.!!!
+ *     will be called.
+ *     Before feed thread exit please keep feed_conf must vaild.!!!
  * @param feed_conf     : the configuration of the package,
  *                        the thread is responsible to relase the object;
  * @return MITFuncRetValue

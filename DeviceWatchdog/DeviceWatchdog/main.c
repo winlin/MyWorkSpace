@@ -7,6 +7,7 @@
 //
 
 #include "MITLogModule.h"
+#include "mit_data_define.h"
 #include "wd_configure.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -26,7 +27,7 @@ int main(int argc, const char * argv[])
 //	}
 //	MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "daemon ppid:%d pid:%d \n",  getppid(), getpid());
     
-    MITLogOpen("DeviceWatchdog", "./logs");
+    MITLogOpen("DeviceWatchdog", WD_FILE_PATH_LOG);
     
     char dir[1024];
     getcwd(dir, sizeof(dir));
@@ -39,7 +40,15 @@ int main(int argc, const char * argv[])
         goto CLOSE_LOG_TAG;
     }
     print_wd_configure(wd_conf);
-    	
+    /** save pid info */
+	char pid_str[16] = {0};
+    sprintf(pid_str, "%d", wd_conf->current_pid);
+    if (write_file(WD_FILE_PATH_APP WD_FILE_NAME_PID, pid_str, strlen(pid_str)) != MIT_RETV_SUCCESS) {
+        MITLog_DetErrPrintf("write_file() %s failed", WD_FILE_PATH_APP WD_FILE_NAME_PID);
+        ret = -1;
+        goto CLOSE_LOG_TAG;
+    }
+    
     start_libevent_udp_server(wd_conf);
     
     free_wd_configure(wd_conf);    

@@ -9,8 +9,20 @@
 #define MIT_DATA_DEFINE_H
 
 #include <string.h>
+#include <sys/types.h>
 
-#define MAX_UDP_PG_SIZE    512
+#define MAX_UDP_PG_SIZE                      512
+#define DEFAULT_FEED_PERIOD                  15
+#define DEFAULT_MAX_MISSED_FEED_TIMES        3
+#define MAX_MISS_FEEDBACK_TIMES              (DEFAULT_MAX_MISSED_FEED_TIMES - 1)
+
+/** The path must end with '/' */
+#define WD_FILE_PATH_APP             "/tmp/watchdog/"
+#define WD_FILE_PATH_LOG             "/tmp/watchdog/logs/"
+#define WD_FILE_NAME_CONFIGURE       "watchdog.cfg"
+#define WD_FILE_NAME_PORT            "port"
+#define WD_FILE_NAME_PID             "pid"
+#define APP_UPDATE_FILE_PREFIX       "UpLock."
 
 /************* Watchdag Constants Definition ***************/
 typedef enum MITFuncRetValue {
@@ -22,10 +34,20 @@ typedef enum MITFuncRetValue {
     MIT_RETV_ALLOC_MEM_FAIL       = -102
 } MITFuncRetValue;
 
+/**
+ *  WD_PG_CMD_REGISTER:     app <---register---> watchdog
+ *  WD_PG_CMD_FEED:         app <-----feed-----> watchdog
+ *  WD_PG_CMD_UNREGISTER:   app <--unregister--> watchdog
+ *  WD_PG_CMD_SELF_UNREG:   app ---unregister--> app
+ *                          app <--unregister--> watchdog
+ *
+ *  WD_PG_CMD_SELF_UNREG: main thread send a UDP to self to start unregister function.
+ */
 typedef enum MITWatchdogPgCmd {
     WD_PG_CMD_REGISTER      = 1,
     WD_PG_CMD_FEED          = 2,
     WD_PG_CMD_UNREGISTER    = 3,
+    WD_PG_CMD_SELF_UNREG    = 4,
     WD_PG_CMD_UNKNOWN       = -1
 } MITWatchdogPgCmd;
 
@@ -37,13 +59,23 @@ typedef enum MITWatchdogPgError {
     WD_PG_ERR_UNREGISTER_FAIL   = 300
 } MITWatchdogPgError;
 
+
 /************* Watchdag Package Definition ***************/
+struct feed_thread_configure {
+    pid_t               monitored_pid;
+    unsigned long int   feed_period;
+    char *              app_name;
+    char *              cmd_line;
+};
+
 struct wd_pg_register {
     short   cmd;
     short   period;
     int     pid;
     int     cmd_len;
     char *  cmd_line;
+    int     name_len;
+    char *  app_name;
 };
 
 struct wd_pg_return {
@@ -76,15 +108,12 @@ short wd_get_net_package_cmd(void *pg);
  * Create a new watchdog register package.
  *
  * @param pg_len    : the length of the package;
- * @param pid       : the register's process id;
- * @param peroid    : the feed period; unit is second;
- * @param cmd_len   : the length of the command line;
- * @param cmd_line  : the command line;
+ * @param feed_conf : the monitored app's configure info;
  * @return on success the package point will be return,
  *         and the *pg_len will be set the length of the package;
  *         on error NULL will be returned
  */
-void *wd_pg_register_new(int *pg_len, int pid, short period, int cmd_len, char *cmd_line);
+void *wd_pg_register_new(int *pg_len, struct feed_thread_configure *feed_conf);
 
 /**
  * Unpackage a new watchdog register package.
@@ -140,12 +169,31 @@ struct wd_pg_return *wd_pg_return_unpg(void *pg, int pg_len);
 
 /*********************** Tools Function ************************/
 /**
- * This function strip space from string both on head and tail
+ * Strip space from string both on head and tail
  * If there is space the memory will be realloc.
  *
  * @return the new string lenght will return.
  */
 size_t strip_string_space(char **tar_str);
+
+/**
+ * Compare cmd_name is equal in two cmd_lines
+ * @param f_cmdline: first cmd_line string
+ * @param s_cmdline: second cmd_line string
+ * @return  On equal 0 will be returned
+ *          else -1 will be returned.
+ */
+int compare_two_cmd_line(const char *f_cmdline, const char *s_cmdline);
+
+/**
+ * Write content into file_path. 
+ * The file_path file will be open with "w" flag.
+ * @param file_path: the absolute file path, ex: /tmp/watchdog/watchdog.conf
+ * @param content:   the content will be written into file
+ * @param cont_len   the lenght of content
+ */
+MITFuncRetValue write_file(const char *file_path, const char *content, size_t cont_len);
+
 #endif
 
 

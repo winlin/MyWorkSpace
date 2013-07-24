@@ -13,25 +13,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#define WD_DEBUG                     1
-
-#ifdef  WD_DEBUG
-#define WD_FILE_PATH_APP             "./"
-#define WD_FILE_PATH_LOG             "./logs/"
-#else
-#define WD_FILE_PATH_APP             "/sdcard/watchdog/"
-#define WD_FILE_PATH_LOG             "/sdcard/log/"
-#endif
-
-#define WD_FILE_NAME_CONFIGURE       "watchdog.cfg"
-#define WD_FILE_NAME_PORT            "port"
-#define WD_FILE_NAME_PID             "pid"
-
-#define    DEFAULT_FEED_PERIOD                  15  
-#define    DEFAULT_UDP_PORT                     60000
-#define    DEFAULT_MAX_MISSED_FEED_TIMES        3
-
 struct monitor_app_info {
+    /** app's name */
+    char *app_name;
     /** command line to start the app */
     char *cmd_line;
     /** the feed period of the app */
@@ -48,8 +32,6 @@ struct monitor_app_info_node {
 };
 
 struct wd_configure {
-    /** default UDP listen port */
-    unsigned long int default_udp_port;
     /** max missing feed times */
     unsigned long int max_missed_feed_times;
     /** default monitor period, unit is second */
