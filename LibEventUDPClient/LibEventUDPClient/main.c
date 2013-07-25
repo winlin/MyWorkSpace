@@ -35,6 +35,7 @@ int main(int argc, const char * argv[])
     if (ret != MIT_RETV_SUCCESS) {
         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "Unregister app failed! Watchdog will restart the app later");
     }
+    
     MITLogClose();
     return 0;
 }

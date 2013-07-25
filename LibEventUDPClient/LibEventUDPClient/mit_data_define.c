@@ -29,14 +29,27 @@ void *wd_pg_register_new(int *pg_len, struct feed_thread_configure *feed_conf)
         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "pg_len can't be NULL");
         return NULL;
     }
-    strip_string_space(&feed_conf->app_name);
-    strip_string_space(&feed_conf->cmd_line);
+    char *app_name = strdup(feed_conf->app_name);
+    if (app_name == NULL) {
+        MITLog_DetErrPrintf("strdup() app_name failed");
+        return NULL;
+    }
+    strip_string_space(&app_name);
+    char *cmd_line = strdup(feed_conf->cmd_line);
+    if (cmd_line == NULL) {
+        MITLog_DetErrPrintf("strdup() cmd_line failed");
+        free(app_name);
+        return NULL;
+    }
+    strip_string_space(&cmd_line);
     
-    size_t cmd_name_len = strlen(feed_conf->app_name) + strlen(feed_conf->cmd_line) + 1;
+    size_t cmd_name_len = strlen(app_name) + strlen(cmd_line) + 1;  // 1 is for the ';' between name & cmd line
     *pg_len = sizeof(short)*2 + sizeof(int)*2 + (int)cmd_name_len;
     void *pg = calloc(*pg_len, sizeof(char));
     if (pg == NULL) {
         MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "calloc() failed");
+        free(cmd_line);
+        free(app_name);
         return NULL;
     }
     // cmd
@@ -52,16 +65,22 @@ void *wd_pg_register_new(int *pg_len, struct feed_thread_configure *feed_conf)
     tmp_int = htonl(cmd_name_len);
     memcpy(pg+sizeof(short)*2+sizeof(int), &tmp_int, sizeof(int));
     // cmd_line
-    char *cmd_line = calloc(cmd_name_len + 1, sizeof(char));
-    if (cmd_line == NULL) {
+    char *name_cmd_line = calloc(cmd_name_len + 1, sizeof(char));
+    if (name_cmd_line == NULL) {
         MITLog_DetErrPrintf("calloc failed");
+        free(cmd_line);
+        free(app_name);
         free(pg);
         return NULL;
     }
-    sprintf(cmd_line, "%s;%s", feed_conf->app_name, feed_conf->cmd_line);
-    memcpy(pg+sizeof(short)*2+sizeof(int)*2, cmd_line, cmd_name_len);
+    sprintf(name_cmd_line, "%s;%s", app_name, cmd_line);
+    memcpy(pg+sizeof(short)*2+sizeof(int)*2, name_cmd_line, cmd_name_len);
+    free(name_cmd_line);
     free(cmd_line);
+    free(app_name);
     return pg;
+    
+    
 }
 struct wd_pg_register *wd_pg_register_unpg(void *pg, int pg_len)
 {
@@ -91,29 +110,42 @@ struct wd_pg_register *wd_pg_register_unpg(void *pg, int pg_len)
     pg_reg->cmd_len = ntohl(tmp_int);
     // app_name
     char *p_cmd = pg+sizeof(short)*2+sizeof(int)*2;
-    for (int i=0; i<pg_reg->cmd_len; ++i) {
-        if (p_cmd[i] == ';') {
-            break;
+    char *tmpstr, *token;
+    token = strtok_r(p_cmd, APP_NAME_CMDLINE_DIVIDE_STR, &tmpstr);
+    if (token) {
+        pg_reg->app_name = strdup(token);
+        if (pg_reg->app_name == NULL) {
+            MITLog_DetErrPrintf("Get strdup() appname failed");
+            free(pg_reg);
+            return NULL;
         }
-        pg_reg->name_len++;
-    }
-    pg_reg->app_name = calloc(pg_reg->name_len+1, sizeof(char));
-    if (pg_reg->app_name == NULL) {
-        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "calloc() failed");
+    } else {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                         "Register package content error. Maybe lack a ';' between appname and cmdline");
         free(pg_reg);
         return NULL;
     }
-    strncpy(pg_reg->app_name, p_cmd, pg_reg->name_len);    
-    // cmd_line
-    pg_reg->cmd_len = pg_reg->cmd_len - pg_reg->name_len - 1;
-    pg_reg->cmd_line = calloc(pg_reg->cmd_len+1, sizeof(char));
-    if (pg_reg->cmd_line == NULL) {
-        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "calloc() failed");
+    strip_string_space(&pg_reg->app_name);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "register unpkg appname:%s", pg_reg->app_name);
+    token = strtok_r(NULL, APP_NAME_CMDLINE_DIVIDE_STR, &tmpstr);
+    if (token) {
+        pg_reg->cmd_line = strdup(token);
+        if (pg_reg->cmd_line == NULL) {
+            MITLog_DetErrPrintf("Get cmd_line failed");
+            free(pg_reg->app_name);
+            free(pg_reg);
+            return NULL;
+        }
+    } else {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                         "Register package content error. Maybe lack a ';' between appname and cmdline");
         free(pg_reg->app_name);
         free(pg_reg);
         return NULL;
     }
-    strncpy(pg_reg->cmd_line, p_cmd+pg_reg->name_len+1, pg_reg->cmd_len);
+    strip_string_space(&pg_reg->cmd_line);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "register unpkg cmd_line:%s", pg_reg->cmd_line);
+
     return pg_reg;
 }
 

@@ -11,18 +11,60 @@
 #include <string.h>
 #include <sys/types.h>
 
+/**
+ * The max UDP package size.
+ * The appname and cmdline sum length mustn't larger than it.
+ */
 #define MAX_UDP_PG_SIZE                      512
+
+/** If app not set feed period watchdog will use it. */
 #define DEFAULT_FEED_PERIOD                  15
+
+/**
+ * If app doesn't feed for DEFAULT_MAX_MISSED_FEED_TIMES*FEED_PERIOD seconds,
+ * watchdog will restart the app.
+ */
 #define DEFAULT_MAX_MISSED_FEED_TIMES        3
+
+/**
+ * If the app has sent MAX_MISS_FEEDBACK_TIMES feed packages without watchdog feeding back,
+ * the app will start to send reigister packages.
+ */
 #define MAX_MISS_FEEDBACK_TIMES              (DEFAULT_MAX_MISSED_FEED_TIMES - 1)
 
 /** The path must end with '/' */
-#define WD_FILE_PATH_APP             "/tmp/watchdog/"
-#define WD_FILE_PATH_LOG             "/tmp/watchdog/logs/"
-#define WD_FILE_NAME_CONFIGURE       "watchdog.cfg"
-#define WD_FILE_NAME_PORT            "port"
-#define WD_FILE_NAME_PID             "pid"
-#define APP_UPDATE_FILE_PREFIX       "UpLock."
+/** Use to store watchdog's configure file. */
+#define WD_FILE_PATH_APP                "/tmp/watchdog/"
+
+/** Use to store watchdog's log files. */
+#define WD_FILE_PATH_LOG                "/tmp/watchdog/logs/"
+
+/** The name of watchdog's configure file. */
+#define WD_FILE_NAME_CONFIGURE          "watchdog.cfg"
+
+/** The name of watchdog exported port file name. */
+#define WD_FILE_NAME_PORT               "port"
+
+/** The name of watchdog exported pid file name. */
+#define WD_FILE_NAME_PID                "pid"
+
+/**
+ * The prefix of app update locking file name.
+ * The locking file show create in WD_FILE_PATH_APP.
+ * After the app update, the locking file should delete immediately.
+ */
+#define APP_UPDATE_FILE_PREFIX          "UpLock."
+
+/**
+ * The divide string between key and value
+ * in watchdog configure file.
+ */
+#define CONF_KEY_VALUE_DIVIDE_STR       "="
+
+/** The divide string between appname
+ * and cmdline in watchdog configure file.
+ */
+#define APP_NAME_CMDLINE_DIVIDE_STR     ";"
 
 /************* Watchdag Constants Definition ***************/
 typedef enum MITFuncRetValue {

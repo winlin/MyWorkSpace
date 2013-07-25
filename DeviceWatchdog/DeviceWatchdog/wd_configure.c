@@ -66,10 +66,9 @@ struct wd_configure* get_wd_configure(void)
                 MITLog_DetErrPrintf("fopen() %s failed", WD_FILE_PATH_APP WD_FILE_NAME_CONFIGURE);
                 goto FREE_CONFIGURE_TAG;
             }
-            ret = fprintf(configue_fp, "%s = %lu\n%s = %lu\n%s = %s\n",
+            ret = fprintf(configue_fp, "%s = %lu\n%s = %lu\n",
                     CONF_KNAME_MISSED_TIMES, wd_conf->max_missed_feed_times,
-                    CONF_KNAME_FEED_PERIOD, wd_conf->default_feed_period,
-                    CONF_KANME_PROCESSES, " ");	
+                    CONF_KNAME_FEED_PERIOD, wd_conf->default_feed_period);	
             if (ret < 0) {
                 MITLog_DetErrPrintf("fprintf() %s failed", WD_FILE_PATH_APP WD_FILE_NAME_CONFIGURE);
                 goto CLOSE_FILE_TAG;
@@ -95,18 +94,38 @@ struct wd_configure* get_wd_configure(void)
             continue;
         }
         /** get key and value */
-        char *key_name      = calloc(read, sizeof(char));
-        if (key_name == NULL) {
-            MITLog_DetErrPrintf("calloc() failed");
-            goto CLOSE_FILE_TAG;
+        char *str, *tmpstr, *token;
+        str = line;
+        char *key_name = NULL;
+        token = strtok_r(str, CONF_KEY_VALUE_DIDIDE_STR, &tmpstr);
+        if (token) {
+            key_name = strdup(token);
+            if (key_name == NULL) {
+                MITLog_DetErrPrintf("strdup() keyname failed");
+                goto FREE_LINE_TAG;
+            }
+        } else {
+            MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                             "Confige file content error. Maybe lack a '=' between key and value");
+            goto FREE_LINE_TAG;
         }
-        char *value_str     = calloc(read, sizeof(char));
-        if (value_str == NULL) {
+        
+        char *value_str = NULL;
+        token = strtok_r(NULL, CONF_KEY_VALUE_DIDIDE_STR, &tmpstr);
+        if (token) {
+            value_str = strdup(token);
+            if (value_str == NULL) {
+                MITLog_DetErrPrintf("strdup() value_str failed");
+                free(key_name);
+                goto FREE_LINE_TAG;
+            }
+        } else {
+            MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                             "Confige file content error. Maybe lack a '=' between key and value");
             free(key_name);
-            MITLog_DetErrPrintf("calloc() failed");
-            goto CLOSE_FILE_TAG;
+            goto FREE_LINE_TAG;
         }
-        sscanf(line, "%s = %s", key_name, value_str);
+        
         strip_string_space(&key_name);
         strip_string_space(&value_str);
         MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "key:%s  value:%s", key_name, value_str);
@@ -114,65 +133,71 @@ struct wd_configure* get_wd_configure(void)
             wd_conf->max_missed_feed_times      = strtoul(value_str, NULL, 10);
         } else if (strcmp(CONF_KNAME_FEED_PERIOD, key_name) == 0) {
             wd_conf->default_feed_period        = strtoul(value_str, NULL, 10);
-        } else if (strcmp(CONF_KANME_PROCESSES, key_name) == 0) {
-            for (int i=0; i<read; ++i) {
-                if (line[i] == '[') {
-                    struct monitor_app_info_node *node = calloc(1, sizeof(struct monitor_app_info_node));
-                    if (node == NULL) {
-                        MITLog_DetErrPrintf("calloc() failed");
-                        goto CLOSE_FILE_TAG;
-                    }
-                    int app_name_len = 0;
-                    for (int j=i+1; j<read; ++j) {
-                        if (line[j] == ';') {
-                            break;
-                        }
-                        ++app_name_len;
-                    }
-                    int j = i+1;
-                    for (; j<read; ++j) {
-                        if (line[j] == ']') {
-                            break;
-                        }
-                    }
-                    if (j >= read) {
-                        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "configure process file lack a ']':%s", line);
-                        free(node);
-                        goto CLOSE_FILE_TAG;
-                    }
-                    // app_name
-                    node->app_info.app_name = calloc(app_name_len+1, sizeof(char));
-                    if (node->app_info.app_name == NULL) {
-                        MITLog_DetErrPrintf("calloc() failed");
-                        free(node);
-                        goto CLOSE_FILE_TAG;
-                    }
-                    strncpy(node->app_info.app_name, line+i+1, app_name_len);
-                    strip_string_space(&node->app_info.app_name);
-                    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "init app name:%s", node->app_info.app_name);
-                    // cmd_line
-                    node->app_info.cmd_line = calloc(j-i-app_name_len, sizeof(char));
-                    if (node->app_info.cmd_line == NULL) {
-                        MITLog_DetErrPrintf("calloc() failed");
-                        free(node);
-                        goto CLOSE_FILE_TAG;
-                    }
-                    strncpy(node->app_info.cmd_line, line+i+1+app_name_len+1, j-i-1-app_name_len-1);
-                    strip_string_space(&node->app_info.cmd_line);
-                    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "init command line:%s", node->app_info.cmd_line);
-                    node->app_info.app_period = wd_conf->default_feed_period;
-                    if (wd_conf->apps_list_head == NULL) {
-                        /** the first node */
-                        wd_conf->apps_list_head = node;
-                        wd_conf->apps_list_tail = node;
-                    } else {
-                        wd_conf->apps_list_tail->next_node = node;
-                        wd_conf->apps_list_tail = node;
-                    }
-                    wd_conf->monitored_apps_count++;
-                    break;
-                }
+        } else if (strcmp(CONF_KANME_PROCESSES, key_name) == 0 && strlen(value_str) > 0) {
+            struct monitor_app_info_node *node = calloc(1, sizeof(struct monitor_app_info_node));
+            if (node == NULL) {
+                MITLog_DetErrPrintf("calloc() monitor_app_info_node failed");
+                free(key_name);
+                free(value_str);
+                goto FREE_LINE_TAG;
             }
+            // get app name
+            str = value_str;
+            token = strtok_r(str, APP_NAME_CMDLINE_DIVIDE_STR, &tmpstr);
+            if (token) {
+                node->app_info.app_name = strdup(token);
+                if (node->app_info.app_name == NULL) {
+                    MITLog_DetErrPrintf("strdup() app_info.app_name failed");
+                    free(key_name);
+                    free(value_str);
+                    free(node);
+                    goto FREE_LINE_TAG;
+                }
+                strip_string_space(&node->app_info.app_name);
+                MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "init app name:%s", node->app_info.app_name);
+            } else {
+                MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                                 "Confige file content error. Maybe lack a ';' between appname and cmdline");
+                free(key_name);
+                free(value_str);
+                free(node);
+                goto FREE_LINE_TAG;
+            }
+            
+            // get cmd line
+            token = strtok_r(NULL, APP_NAME_CMDLINE_DIVIDE_STR, &tmpstr);
+            if (token) {
+                node->app_info.cmd_line = strdup(token);
+                if (node->app_info.cmd_line == NULL) {
+                    MITLog_DetErrPrintf("strdup() app_info.cmd_line failed");
+                    free(key_name);
+                    free(value_str);
+                    free(node->app_info.app_name);
+                    free(node);
+                    goto FREE_LINE_TAG;
+                }
+                strip_string_space(&node->app_info.cmd_line);
+                MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "init command line:%s", node->app_info.cmd_line);
+            } else {
+                MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                                 "Confige file content error. Maybe lack a ';' between appname and cmdline");
+                free(key_name);
+                free(value_str);
+                free(node->app_info.app_name);
+                free(node);
+                goto FREE_LINE_TAG;
+            }
+       
+            node->app_info.app_period = wd_conf->default_feed_period;
+            if (wd_conf->apps_list_head == NULL) {
+                /** the first node */
+                wd_conf->apps_list_head = node;
+                wd_conf->apps_list_tail = node;
+            } else {
+                wd_conf->apps_list_tail->next_node = node;
+                wd_conf->apps_list_tail = node;
+            }
+            wd_conf->monitored_apps_count++;
         }
         free(key_name);
         free(value_str);
@@ -181,6 +206,8 @@ struct wd_configure* get_wd_configure(void)
     fclose(configue_fp);
     return wd_conf;
 
+FREE_LINE_TAG:
+    free(line);
 CLOSE_FILE_TAG:
     fclose(configue_fp);
 FREE_CONFIGURE_TAG:
@@ -511,12 +538,15 @@ void start_the_monitor_app(struct monitor_app_info *app_info)
         }
     }
     char *cmd_line = strdup(app_info->cmd_line);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "strdup() cmd_line:%s", cmd_line);
     if (cmd_line == NULL) {
         MITLog_DetErrPrintf("strdup() failed");
         return;
     }
-    int alloc_size   = 4;
-    char **cmd_argvs = calloc(alloc_size, sizeof(char *));
+    int unit_alloc_size   = 4;
+    int sum_alloc_size    = 0;
+    char **cmd_argvs = (char **)calloc(unit_alloc_size, sizeof(char *));
+    sum_alloc_size += unit_alloc_size;
     char **np        = NULL;
     if (cmd_argvs == NULL) {
         MITLog_DetErrPrintf("calloc() failed");
@@ -526,31 +556,28 @@ void start_the_monitor_app(struct monitor_app_info *app_info)
     char *str, *save_ptr, *token;
     int j=0;
     for (str=cmd_line; ; ++j, str=NULL) {
-        token = strtok_r(str, " ", &save_ptr);
-        int old_size = sizeof(*cmd_argvs);
-        if (j >= old_size) {
-            np = calloc(old_size+alloc_size, sizeof(char *));
+        token = strtok_r(str, " ", &save_ptr);  // cmd and param divide by " "
+        if (j >= sum_alloc_size) {
+            np = (char **)calloc(sum_alloc_size+unit_alloc_size, sizeof(char *));
             if (np == NULL) {
                 MITLog_DetErrPrintf("calloc() failed");
                 free(cmd_line);
                 free(cmd_argvs);
                 return;
             }
-            memcpy(np, cmd_argvs, old_size*sizeof(char *));
+            memcpy(np, cmd_argvs, sum_alloc_size*sizeof(char *));
+            sum_alloc_size += unit_alloc_size;
             free(cmd_argvs);
             cmd_argvs = np;
         }
         cmd_argvs[j] = token;
+        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "j:%d token:%s", j, cmd_argvs[j]);
         if (token == NULL) {
             break;
         }
     }
     int pid = vfork();
     if (pid == 0) {
-        MITLog_DetPrintf(MITLOG_LEVEL_COMMON,
-                         "child process:%d will execvp(%s)",
-                         getpid(),
-                         app_info->cmd_line);
         int ret = execvp(cmd_argvs[0], cmd_argvs);
         if (ret < 0) {
             MITLog_DetErrPrintf("execvp() failed");
@@ -558,16 +585,15 @@ void start_the_monitor_app(struct monitor_app_info *app_info)
         exit(EXIT_SUCCESS);
     } else if (pid > 0) {
         app_info->app_pid = pid;
+        MITLog_DetPrintf(MITLOG_LEVEL_COMMON,
+                         "child process:%d will execvp(%s)",
+                         pid,
+                         app_info->cmd_line);
     } else {
         MITLog_DetErrPrintf("vfork() failed");
     }
-    free(cmd_line);
-    j = 0;
-    while (cmd_argvs[j] != NULL) {
-        MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "cmd_argvs[%d]:%s", j, cmd_argvs[j]);
-        ++j;
-    }
     free(cmd_argvs);
+    free(cmd_line);
 }
 
 void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
