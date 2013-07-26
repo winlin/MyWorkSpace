@@ -11,8 +11,8 @@
 		0D25ECC41798E1B300C0F5EA /* LibEventUDPClient.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0D25ECC31798E1B300C0F5EA /* LibEventUDPClient.1 */; };
 		0D25ECCB1798E21800C0F5EA /* libevent-2.0.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D25ECCA1798E21800C0F5EA /* libevent-2.0.5.dylib */; };
 		0D25ECD11798E63900C0F5EA /* create_feed_thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D25ECD01798E63900C0F5EA /* create_feed_thread.c */; };
-		0D26F6DF17A0E765008F6AC4 /* mit_data_define.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D26F6DB17A0E765008F6AC4 /* mit_data_define.c */; };
-		0D26F6E017A0E765008F6AC4 /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D26F6DD17A0E765008F6AC4 /* MITLogModule.c */; };
+		0D8BE2A817A2893B0097491D /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D8BE2A417A2893B0097491D /* MITLogModule.c */; };
+		0D8BE2A917A2893B0097491D /* mit_data_define.c in Sources */ = {isa = PBXBuildFile; fileRef = 0D8BE2A517A2893B0097491D /* mit_data_define.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,10 +35,10 @@
 		0D25ECCA1798E21800C0F5EA /* libevent-2.0.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libevent-2.0.5.dylib"; path = "../../../../../usr/local/lib/libevent-2.0.5.dylib"; sourceTree = "<group>"; };
 		0D25ECCF1798E62B00C0F5EA /* create_feed_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = create_feed_thread.h; sourceTree = "<group>"; };
 		0D25ECD01798E63900C0F5EA /* create_feed_thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = create_feed_thread.c; sourceTree = "<group>"; };
-		0D26F6DB17A0E765008F6AC4 /* mit_data_define.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mit_data_define.c; sourceTree = "<group>"; };
-		0D26F6DC17A0E765008F6AC4 /* mit_data_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mit_data_define.h; sourceTree = "<group>"; };
-		0D26F6DD17A0E765008F6AC4 /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
-		0D26F6DE17A0E765008F6AC4 /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
+		0D8BE2A417A2893B0097491D /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
+		0D8BE2A517A2893B0097491D /* mit_data_define.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mit_data_define.c; sourceTree = "<group>"; };
+		0D8BE2A617A2893B0097491D /* mit_data_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mit_data_define.h; sourceTree = "<group>"; };
+		0D8BE2A717A2893B0097491D /* MITLogModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITLogModule.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,11 +76,11 @@
 				0D25ECC11798E1B300C0F5EA /* main.c */,
 				0D25ECCF1798E62B00C0F5EA /* create_feed_thread.h */,
 				0D25ECD01798E63900C0F5EA /* create_feed_thread.c */,
-				0D26F6DB17A0E765008F6AC4 /* mit_data_define.c */,
-				0D26F6DC17A0E765008F6AC4 /* mit_data_define.h */,
-				0D26F6DD17A0E765008F6AC4 /* MITLogModule.c */,
-				0D26F6DE17A0E765008F6AC4 /* MITLogModule.h */,
 				0D25ECC31798E1B300C0F5EA /* LibEventUDPClient.1 */,
+				0D8BE2A417A2893B0097491D /* MITLogModule.c */,
+				0D8BE2A517A2893B0097491D /* mit_data_define.c */,
+				0D8BE2A617A2893B0097491D /* mit_data_define.h */,
+				0D8BE2A717A2893B0097491D /* MITLogModule.h */,
 			);
 			path = LibEventUDPClient;
 			sourceTree = "<group>";
@@ -138,8 +138,8 @@
 			files = (
 				0D25ECC21798E1B300C0F5EA /* main.c in Sources */,
 				0D25ECD11798E63900C0F5EA /* create_feed_thread.c in Sources */,
-				0D26F6DF17A0E765008F6AC4 /* mit_data_define.c in Sources */,
-				0D26F6E017A0E765008F6AC4 /* MITLogModule.c in Sources */,
+				0D8BE2A817A2893B0097491D /* MITLogModule.c in Sources */,
+				0D8BE2A917A2893B0097491D /* mit_data_define.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

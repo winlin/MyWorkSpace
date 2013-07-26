@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 short wd_get_net_package_cmd(void *pg)
 {
@@ -331,6 +332,52 @@ MITFuncRetValue write_file(const char *file_path, const char *content, size_t co
     fclose(fp);
 FUNC_RETU_TAG:
     return ret;
+}
+
+long long int get_pid_with_comm(const char *comm)
+{
+    if (comm == NULL || strlen(comm) == 0) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "paramater can't be empty");
+        return 0;
+    }
+    long long int app_pid = 0;
+    // get the system max pid
+    if ((access(SYS_PROC_MAX_PID_FILE, F_OK)) != 0) {
+        MITLog_DetErrPrintf("access() %s failed", SYS_PROC_MAX_PID_FILE);
+        return app_pid;
+    }
+    FILE *max_pid_file = fopen(SYS_PROC_MAX_PID_FILE, "r");
+    long long int sys_max_pid = 0;
+    if (max_pid_file == NULL) {
+        MITLog_DetErrPrintf("fopen() %s falied", SYS_PROC_MAX_PID_FILE);
+        return app_pid;
+    }
+    fscanf(max_pid_file, "%lld", &sys_max_pid);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get System Max PID:%d", app_pid);
+    fclose(max_pid_file);
+    for (long long int i=1; i <= sys_max_pid; ++i) {
+        char app_comm_path[60] = {0};
+        sprintf(app_comm_path, "%s%lld/%s", SYS_PROC_PATH, i, SYS_APP_COMM_NAME);
+        if ((access(app_comm_path, F_OK)) != 0) {
+            continue;
+        }
+        FILE *comm_fp = fopen(app_comm_path, "r");
+        if (comm_fp == NULL) {
+            if (errno != ENOENT) {
+                MITLog_DetErrPrintf("fopen() %s failed", app_comm_path);
+            } else {
+                continue;
+            }
+        }
+        char app_comm[60] = {0};
+        fscanf(comm_fp, "%s", app_comm);
+        fclose(comm_fp);
+        if (strcmp(comm, app_comm) == 0) {
+            MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Find the target app pid:%lld", i);
+            return i;
+        }
+    }
+    return 0;
 }
 
 

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-/** 
+/**
  * The max UDP package size.
  * The appname and cmdline sum length mustn't larger than it.
  */
@@ -20,7 +20,7 @@
 /** If app not set feed period watchdog will use it. */
 #define DEFAULT_FEED_PERIOD                  15
 
-/** 
+/**
  * If app doesn't feed for DEFAULT_MAX_MISSED_FEED_TIMES*FEED_PERIOD seconds,
  * watchdog will restart the app.
  */
@@ -28,7 +28,7 @@
 
 /**
  * If the app has sent MAX_MISS_FEEDBACK_TIMES feed packages without watchdog feeding back,
- * the app will start to send reigister packages.	
+ * the app will start to send reigister packages.
  */
 #define MAX_MISS_FEEDBACK_TIMES              (DEFAULT_MAX_MISSED_FEED_TIMES - 1)
 
@@ -37,7 +37,7 @@
 #define WD_FILE_PATH_APP                "/tmp/watchdog/"
 
 /** Use to store watchdog's log files. */
-#define WD_FILE_PATH_LOG                "/tmp/logs/watchdog/"
+#define WD_FILE_PATH_LOG                "/tmp/logs/watchdog"
 
 /** The name of watchdog's configure file. */
 #define WD_FILE_NAME_CONFIGURE          "watchdog.cfg"
@@ -48,24 +48,30 @@
 /** The name of watchdog exported pid file name. */
 #define WD_FILE_NAME_PID                "pid"
 
-/** 
+/**
  * The prefix of app update locking file name.
  * The locking file show create in WD_FILE_PATH_APP.
  * After the app update, the locking file should delete immediately.
  */
 #define APP_UPDATE_FILE_PREFIX          "UpLock."
 
-/** 
- * The divide string between key and value 
- * in watchdog configure file. 
+/**
+ * The divide string between key and value
+ * in watchdog configure file.
  */
 #define CONF_KEY_VALUE_DIVIDE_STR       "="
 
-/** The divide string between appname 
- * and cmdline in watchdog configure file. 
+/** The divide string between appname
+ * and cmdline in watchdog configure file.
  */
 #define APP_NAME_CMDLINE_DIVIDE_STR     ";"
 
+/** The path of system procfs. */
+#define SYS_PROC_PATH                   "/proc/"
+/** The name of file which stores the app's comm */
+#define SYS_APP_COMM_NAME               "comm"
+/** The file path of file which stores the system max pid */
+#define SYS_PROC_MAX_PID_FILE           "/proc/sys/kernel/pid_max"
 /************* Watchdag Constants Definition ***************/
 typedef enum MITFuncRetValue {
     MIT_RETV_SUCCESS              = 0,
@@ -235,6 +241,13 @@ int compare_two_cmd_line(const char *f_cmdline, const char *s_cmdline);
  * @param cont_len   the lenght of content
  */
 MITFuncRetValue write_file(const char *file_path, const char *content, size_t cont_len);
+
+/**
+ * Get application's name whoes name is "comm", just app's name without arguments
+ * @return On success the pid of the app will be returned.
+ *         If the app isn't executing 0 will be returned.
+ */
+long long int get_pid_with_comm(const char *comm);
 
 #endif
 

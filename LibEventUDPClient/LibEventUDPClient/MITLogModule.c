@@ -40,8 +40,8 @@
 #include <time.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <pthread.h>
 
 static int mit_log_opened_flag;
@@ -280,7 +280,7 @@ MITFuncRetValue MITLogOpen(const char *appName, const char*logPath)
     // keep the log path exist
     ret = mkdir(appLogFilePath, S_IRWXU|S_IRWXG|S_IRWXO);
     if (ret == -1 && errno != EEXIST) {
-        MIT_derrprintf("mkdir() %s failed:%d", appLogFilePath, ret);
+        MIT_derrprintf("mkdir() failed:%d", ret);
         return MIT_RETV_FAIL;
     }
     // alloc memory
