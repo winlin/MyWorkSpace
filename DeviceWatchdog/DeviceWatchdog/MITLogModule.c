@@ -40,8 +40,8 @@
 #include <time.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <pthread.h>
 
 static int mit_log_opened_flag;
