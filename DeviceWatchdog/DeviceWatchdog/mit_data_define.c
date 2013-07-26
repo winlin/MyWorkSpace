@@ -353,7 +353,7 @@ long long int get_pid_with_comm(const char *comm)
         return app_pid;
     }
     fscanf(max_pid_file, "%lld", &sys_max_pid);
-    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get System Max PID:%d", app_pid);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Get System Max PID:%lld", sys_max_pid);
     fclose(max_pid_file);
     for (long long int i=1; i <= sys_max_pid; ++i) {
         char app_comm_path[60] = {0};
