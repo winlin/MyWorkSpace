@@ -66,6 +66,12 @@
  */
 #define APP_NAME_CMDLINE_DIVIDE_STR     ";"
 
+/** The path of system procfs. */
+#define SYS_PROC_PATH                   "/proc/"
+/** The name of file which stores the app's comm */
+#define SYS_APP_COMM_NAME               "comm"
+/** The file path of file which stores the system max pid */
+#define SYS_PROC_MAX_PID_FILE           "/proc/sys/kernel/pid_max"
 /************* Watchdag Constants Definition ***************/
 typedef enum MITFuncRetValue {
     MIT_RETV_SUCCESS              = 0,
@@ -235,6 +241,13 @@ int compare_two_cmd_line(const char *f_cmdline, const char *s_cmdline);
  * @param cont_len   the lenght of content
  */
 MITFuncRetValue write_file(const char *file_path, const char *content, size_t cont_len);
+
+/**
+ * Get application's name whoes name is "comm", just app's name without arguments
+ * @return On success the pid of the app will be returned.
+ *         If the app isn't executing 0 will be returned.
+ */
+long long int get_pid_with_comm(const char *comm);
 
 #endif
 

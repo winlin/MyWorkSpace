@@ -165,6 +165,11 @@ struct wd_configure* get_wd_configure(void)
                 free(node);
                 goto FREE_LINE_TAG;
             }
+            // if the app is running get the pid and set the app_last_feed_time
+            node->app_info.app_pid = (pid_t)get_pid_with_comm(node->app_info.app_name);
+            if (node->app_info.app_pid > 0) {
+                node->app_info.app_last_feed_time = time(NULL);
+            }
             
             // get cmd line
             token = strtok_r(NULL, APP_NAME_CMDLINE_DIVIDE_STR, &tmpstr);
@@ -607,10 +612,11 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
     struct monitor_app_info_node *tmp = wd_configure->apps_list_head;
     for (; tmp; tmp=tmp->next_node) {
         time_t now_time         = time(NULL);
-        time_t app_final_time   = tmp->app_info.app_last_feed_time \
-        + wd_configure->max_missed_feed_times \
-        * tmp->app_info.app_period;
-        if (now_time > app_final_time ) {
+        time_t app_final_time   = (tmp->app_info.app_last_feed_time +
+                                   wd_configure->max_missed_feed_times *
+                                   tmp->app_info.app_period);
+        
+        if (now_time > app_final_time) {
             MITLog_DetPrintf(MITLOG_LEVEL_WARNING,
                              "app:%d need to be restarted\n cmdline:%s",
                              tmp->app_info.app_pid,
