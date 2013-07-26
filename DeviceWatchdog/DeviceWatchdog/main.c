@@ -21,13 +21,13 @@ int main(int argc, const char * argv[])
      *    don't redirect stdin/stdou/stderr
      */
     int ret = 0;
-//	int ret = daemon(1, 1);
-//	if(ret == -1) {
-//		MITLog_DetErrPrintf("call daemon() failed!");
-//	}
-//	MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "daemon ppid:%d pid:%d \n",  getppid(), getpid());
-    
+	ret = daemon(1, 1);
+	if(ret == -1) {
+		MITLog_DetErrPrintf("call daemon() failed!");
+	}
     MITLogOpen("DeviceWatchdog", WD_FILE_PATH_LOG);
+    
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "daemon ppid:%d pid:%d",  getppid(), getpid());
     
     char dir[1024];
     getcwd(dir, sizeof(dir));

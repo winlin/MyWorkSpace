@@ -37,7 +37,7 @@
 #define WD_FILE_PATH_APP                "/tmp/watchdog/"
 
 /** Use to store watchdog's log files. */
-#define WD_FILE_PATH_LOG                "/tmp/watchdog/logs/"
+#define WD_FILE_PATH_LOG                "/tmp/logs/watchdog/"
 
 /** The name of watchdog's configure file. */
 #define WD_FILE_NAME_CONFIGURE          "watchdog.cfg"

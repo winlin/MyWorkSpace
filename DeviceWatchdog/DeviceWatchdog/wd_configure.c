@@ -97,7 +97,7 @@ struct wd_configure* get_wd_configure(void)
         char *str, *tmpstr, *token;
         str = line;
         char *key_name = NULL;
-        token = strtok_r(str, CONF_KEY_VALUE_DIDIDE_STR, &tmpstr);
+        token = strtok_r(str, CONF_KEY_VALUE_DIVIDE_STR, &tmpstr);
         if (token) {
             key_name = strdup(token);
             if (key_name == NULL) {
@@ -111,7 +111,7 @@ struct wd_configure* get_wd_configure(void)
         }
         
         char *value_str = NULL;
-        token = strtok_r(NULL, CONF_KEY_VALUE_DIDIDE_STR, &tmpstr);
+        token = strtok_r(NULL, CONF_KEY_VALUE_DIVIDE_STR, &tmpstr);
         if (token) {
             value_str = strdup(token);
             if (value_str == NULL) {
@@ -233,7 +233,7 @@ MITFuncRetValue save_monitor_apps_info()
     /** write the monitored apps name and cmd line */
     struct monitor_app_info_node *tmp = wd_configure->apps_list_head;
     while (tmp) {
-        ret = fprintf(configue_fp, "%s = [%s;%s]\n",
+        ret = fprintf(configue_fp, "%s = %s;%s\n",
                 CONF_KANME_PROCESSES,
                 tmp->app_info.app_name,
                 tmp->app_info.cmd_line);
@@ -603,11 +603,11 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
     /** check every app and decide whether special app should be restarted */
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "Current Monitored App Count:%d", wd_configure->monitored_apps_count);
     struct monitor_app_info_node *tmp = wd_configure->apps_list_head;
-    while (tmp) {
+    for (; tmp; tmp=tmp->next_node) {
         time_t now_time         = time(NULL);
         time_t app_final_time   = tmp->app_info.app_last_feed_time \
-                                    + wd_configure->max_missed_feed_times \
-                                    * tmp->app_info.app_period;
+        + wd_configure->max_missed_feed_times \
+        * tmp->app_info.app_period;
         if (now_time > app_final_time ) {
             MITLog_DetPrintf(MITLOG_LEVEL_WARNING,
                              "app:%d need to be restarted\n cmdline:%s",
@@ -623,7 +623,7 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
                                             sizeof(char));
             if (update_lock_file == NULL) {
                 MITLog_DetErrPrintf("calloc() falied");
-                break;
+                continue;
             }
             sprintf(update_lock_file, "%s%s%s", WD_FILE_PATH_APP, APP_UPDATE_FILE_PREFIX, tmp->app_info.app_name);
             MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "update_lock_file:%s", update_lock_file);
@@ -631,16 +631,15 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void* data)
             if ((exist_flag = access(update_lock_file, F_OK)) < 0) {
                 if (errno != ENOENT) {
                     MITLog_DetErrPrintf("access() %s failed", update_lock_file);
-                    break;
+                    continue;
                 }
             } else if (exist_flag == 0) {
                 MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "%s is updating", tmp->app_info.app_name);
-                break;
+                continue;
             }
             /** start the app again */
             start_the_monitor_app(&tmp->app_info);
         }
-        tmp = tmp->next_node;
     }
 }
 
