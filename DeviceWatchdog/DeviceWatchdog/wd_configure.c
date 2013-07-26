@@ -660,7 +660,7 @@ MITFuncRetValue start_libevent_udp_server(struct wd_configure *wd_conf)
     }
     
     int set_value = 1;
-    if(setsockopt(socket_fd, SOL_SOCKET, SO_REUSEPORT, (void *)&set_value, sizeof(set_value)) < 0) {
+    if(setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&set_value, sizeof(set_value)) < 0) {
         MITLog_DetErrPrintf("setsockopt() failed");
     }
     if (fcntl(socket_fd, F_SETFD, FD_CLOEXEC) < 0) {
