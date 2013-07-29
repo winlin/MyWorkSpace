@@ -1,3 +1,9 @@
+# Precompile hearder files
+*.gch
+
+# Sublimte Text tmp files
+*.d
+
 # Object files
 *.o
 
