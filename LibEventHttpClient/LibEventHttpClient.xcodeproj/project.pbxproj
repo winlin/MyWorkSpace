@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0DC46DB31795418700B8170A /* mit_libevent_http_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46DB21795418700B8170A /* mit_libevent_http_client.c */; };
+		0DA21E8017A91976001DC017 /* mit_libevent_http_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DA21E7F17A91976001DC017 /* mit_libevent_http_client.c */; };
 		0DC46DB51795418700B8170A /* LibEventHttpClient.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0DC46DB41795418700B8170A /* LibEventHttpClient.1 */; };
 		0DC46DBF179542D100B8170A /* MITLogModule.c in Sources */ = {isa = PBXBuildFile; fileRef = 0DC46DBD179542D100B8170A /* MITLogModule.c */; };
 		0DF2E525179570FB001C9681 /* libevent-2.0.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DC46DBB179541CF00B8170A /* libevent-2.0.5.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -27,8 +27,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0DA21E7F17A91976001DC017 /* mit_libevent_http_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mit_libevent_http_client.c; sourceTree = "<group>"; };
 		0DC46DAF1795418700B8170A /* LibEventHttpClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LibEventHttpClient; sourceTree = BUILT_PRODUCTS_DIR; };
-		0DC46DB21795418700B8170A /* mit_libevent_http_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mit_libevent_http_client.c; sourceTree = "<group>"; };
 		0DC46DB41795418700B8170A /* LibEventHttpClient.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = LibEventHttpClient.1; sourceTree = "<group>"; };
 		0DC46DBB179541CF00B8170A /* libevent-2.0.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libevent-2.0.5.dylib"; path = "../../../../../usr/local/lib/libevent-2.0.5.dylib"; sourceTree = "<group>"; };
 		0DC46DBD179542D100B8170A /* MITLogModule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MITLogModule.c; sourceTree = "<group>"; };
@@ -67,10 +67,10 @@
 		0DC46DB11795418700B8170A /* LibEventHttpClient */ = {
 			isa = PBXGroup;
 			children = (
-				0DC46DB21795418700B8170A /* mit_libevent_http_client.c */,
 				0DC46DBD179542D100B8170A /* MITLogModule.c */,
 				0DC46DBE179542D100B8170A /* MITLogModule.h */,
 				0DC46DB41795418700B8170A /* LibEventHttpClient.1 */,
+				0DA21E7F17A91976001DC017 /* mit_libevent_http_client.c */,
 			);
 			path = LibEventHttpClient;
 			sourceTree = "<group>";
@@ -126,8 +126,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DC46DB31795418700B8170A /* mit_libevent_http_client.c in Sources */,
 				0DC46DBF179542D100B8170A /* MITLogModule.c in Sources */,
+				0DA21E8017A91976001DC017 /* mit_libevent_http_client.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
