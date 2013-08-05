@@ -11,11 +11,10 @@
 #include <string.h>
 #include <sys/types.h>
 
-/**
- * The interval of watchdog check apps's alive.
- * Unit is second.
- */
-#define WD_CHECK_TIME_INTERVAL               1
+/** The max absolutely path length. */
+#define MAX_AB_PATH_LEN                      1024
+/** The max file name length. */
+#define MAX_F_NAME_LEN                       256
 
 /**
  * The max UDP package size.
@@ -44,29 +43,48 @@
  */
 #define MAX_MISS_FEEDBACK_TIMES              (DEFAULT_MAX_MISSED_FEED_TIMES - 1)
 
-/** The path must end with '/' */
-/** Use to store all applications' log files */
-#define LOG_FILE_PATH                  "/data/logs/"
+/** 
+ * The path must end with '/'. 
+ * Please make sure these path exist. 
+ */
+/** The apps' common path */
+#define APP_COMM_PATH                  "/data/"
+/** Use to store all apps' log files */
+#define LOG_FILE_PATH                  APP_COMM_PATH"logs/"
+/** Use to store all apps' configure files */
+#define APP_CONF_PATH                  APP_COMM_PATH"configure/"
+/** The default file name of app's info of pid */
+#define F_NAME_COMM_PID                "pid"
+/** The default file name of app's info of port */
+#define F_NAME_COMM_PORT               "port"
+/** The default file name of app's info of version */
+#define F_NAME_COMM_VERSON             "version"
+/** The default file name of app's configure */
+#define F_NAME_COMM_CONF               "configure.cfg"
+ 
+/**
+ * The app's log and configure path names 
+ * must be same with the app's name.
+ * ex: app's name is "dev_watchdog"
+ *     app's log file path is LOG_FILE_PATH"dev_watchdog"
+ */
+/** The device watchdog app name */
+#define APP_NAME_WATCHDOG              "dev_watchdog"
 /** Use to store watchdog's configure file. */
-#define WD_CON_FILE_PATH                "/data/watchdog/"
-/** Use to store update apps daemon's configure file. */
-#define UP_CON_FILE_PATH                "/data/up_add_daemon/"
-
+#define CONF_PATH_WATCHD               APP_CONF_PATH APP_NAME_WATCHDOG"/"
 /** Use to store watchdog's log files. */
-#define WD_FILE_PATH_LOG                LOG_FILE_PATH"watchdog"
-
-/** The name of watchdog's configure file. */
-#define WD_FILE_NAME_CONFIGURE          "watchdog.cfg"
-
-/** The name of watchdog exported port file name. */
-#define FILE_NAME_PORT               "port"
-
-/** The name of watchdog exported pid file name. */
-#define FILE_NAME_PID                "pid"
+#define LOG_PATH_WATCHD                LOG_FILE_PATH APP_NAME_WATCHDOG"/"
+/** Watchdog's version number */
+#define VERSION_WD                     "v1.0.1"
+/**
+ * The interval of watchdog check apps's alive.
+ * Unit is second.
+ */
+#define WD_CHECK_TIME_INTERVAL               1
 
 /**
  * The prefix of app update locking file name.
- * The locking file show create in WD_FILE_PATH_APP.
+ * The locking file show create in CONF_PATH_WATCHD.
  * After the app update, the locking file should delete immediately.
  */
 #define APP_UPDATE_FILE_PREFIX          "UpLock."
@@ -88,6 +106,8 @@
 #define SYS_APP_COMM_NAME               "comm"
 /** The file path of file which stores the system max pid */
 #define SYS_PROC_MAX_PID_FILE           "/proc/sys/kernel/pid_max"
+
+ 
 /************* Watchdag Constants Definition ***************/
 typedef enum MITFuncRetValue {
     MIT_RETV_SUCCESS              = 0,
@@ -264,6 +284,12 @@ MITFuncRetValue write_file(const char *file_path, const char *content, size_t co
  *         If the app isn't executing 0 will be returned.
  */
 long long int get_pid_with_comm(const char *comm);
+
+/**
+ * Save app's configure info into APP_CONF_PATH
+ * The file will be open by flag "w"
+ */
+MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, const char *content);
 
 #endif
 

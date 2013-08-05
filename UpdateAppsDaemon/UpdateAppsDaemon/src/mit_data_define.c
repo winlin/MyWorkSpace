@@ -387,7 +387,44 @@ long long int get_pid_with_comm(const char *comm)
     return 0;
 }
 
+MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, const char *content)
+{
+    if (strlen(app_name) == 0 ||
+        strlen(file_name) == 0 ||
+        strlen(content) == 0) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "paramaters can't be empty");
+        return MIT_RETV_PARAM_EMPTY;
+    }
+    /** create the configure path for the app */
+    char file_path[MAX_AB_PATH_LEN] = {0};
+    snprintf(file_path, MAX_AB_PATH_LEN-1, "%s%s", APP_CONF_PATH, app_name);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "file path:%s", file_path);
+    if ((access(file_path, F_OK)) != 0) {
+        int ret_t = mkdir(file_path, S_IRWXU|S_IRWXG|S_IRWXO);
+            if (ret_t == -1 && errno != EEXIST) {
+                MITLog_DetErrPrintf("mkdir() failed:%s", file_path);
+                return MIT_RETV_OPEN_FILE_FAIL;
+            }
+    }
+    /** save the content into file */
+    char tar_file[MAX_AB_PATH_LEN] = {0};
+    snprintf(tar_file, MAX_AB_PATH_LEN-1, "%s/%s", file_path, file_name);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "app conf file:%s", tar_file);
 
+    FILE *conf_fp = fopen(tar_file, "w");
+    if (conf_fp == NULL) {
+        MITLog_DetErrPrintf("call fopen() failed:%s", tar_file);
+        return MIT_RETV_OPEN_FILE_FAIL;
+    }
+
+    size_t w_len_sum = 0, w_len = 0, cont_len = strlen(content);
+    while ((w_len = fwrite(content+w_len_sum, sizeof(char), cont_len-w_len_sum, conf_fp)) > 0) {
+        w_len_sum += w_len;
+    }
+
+    fclose(conf_fp);
+    return MIT_RETV_SUCCESS;
+}
 
 
 
