@@ -24,20 +24,20 @@ typedef enum  UPAppType{
     UPAPP_TYPE_JAVA     = 3
 } UPAppType;
 
+/**
+ * Attention: the NEW app's version number MAYBE greater
+ * than the current installed one.
+ */
 struct up_app_info {
     /** the updated app's type */
     UPAppType app_type;
     /** the updated app's name */
     char * app_name;
-    /** the update app's absolutely path without file name */
+    /** the installed app's absolutely path without file name */
     char * app_path;
-    /** 
-     * the path points to 'new' app
-     * which version number maybe greater
-     * than the current installed one.
-     */
+    /** the path points to NEW app */
     char * new_app_path;
-    /** the 'new' app's verson */
+    /** the NEW app's verson */
     char * new_version;
     /** the current installed app's verson */
     char * cur_version;
