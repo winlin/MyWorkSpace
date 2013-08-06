@@ -279,17 +279,29 @@ int compare_two_cmd_line(const char *f_cmdline, const char *s_cmdline);
 MITFuncRetValue write_file(const char *file_path, const char *content, size_t cont_len);
 
 /**
- * Get application's name whoes name is "comm", just app's name without arguments
+ * Get application's pid whoes name is "comm", just app's name without arguments.
  * @return On success the pid of the app will be returned.
  *         If the app isn't executing 0 will be returned.
  */
 long long int get_pid_with_comm(const char *comm);
 
 /**
+ * Get application's comm whoes pid is "pid".
+ * @return On success the comm of the pid will be set into app_comm.
+ */
+void get_comm_with_pid(long long int pid, char* app_comm);
+
+/**
  * Save app's configure info into APP_CONF_PATH
  * The file will be open by flag "w"
  */
 MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, const char *content);
+
+/**
+ * Get the app's verson number from version file in the configure path.
+ * @return On success the verson will be set into ver_str.
+ */
+void get_app_version(const char *app_name, char *ver_str);
 
 #endif
 

@@ -35,7 +35,7 @@
  * Without the definition all message will be written into common/warning/error log files.
  * It can be used when you want to relase application
  */
-#define MITLOG_DEBUG_ENABLE      1
+//#define MITLOG_DEBUG_ENABLE      1
 
 #define MITLOG_FILE_INDEX_NUM      3
 typedef enum MITLogFileIndex {
@@ -59,7 +59,7 @@ typedef enum MITLogMaxSize {
     MITLOG_MAX_COMM_FILE_NUM         = 10,             // common type file num: appName.comm.1
     MITLOG_MAX_WARN_FILE_NUM         = 5,            // warning type file num: appName.warn.1 -- appName.warn.10
     MITLOG_MAX_ERROR_FILE_NUM        = 5,            // error type file num: appName.error.1 -- appName.error.10
-    MITLOG_MAX_COMM_BUFFER_SIZE      = 512,           // 4KB
+    MITLOG_MAX_COMM_BUFFER_SIZE      = 0,           // 4KB
     MITLOG_MAX_WARN_BUFFER_SIZE      = 0,           // 1KB
     MITLOG_MAX_ERROR_BUFFER_SIZE     = 0            // 1KB
 }MITLogMaxSize;

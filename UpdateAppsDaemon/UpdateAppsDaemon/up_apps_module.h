@@ -17,6 +17,8 @@
  */
 #define UP_APP_DAEMON_TIME_INTERVAL         3
 
+#define APP_BACKUP_SUFFIX                   ".BAK"
+
 /************* Update App Daemon Struct Definition ***************/
 typedef enum  UPAppType{
     UPAPP_TYPE_C        = 1,
@@ -33,7 +35,10 @@ struct up_app_info {
     UPAppType app_type;
     /** the updated app's name */
     char * app_name;
-    /** the installed app's absolutely path without file name */
+    /** 
+     * the installed app's absolutely path without file name 
+     * ended with '/'
+     */
     char * app_path;
     /** the path points to NEW app */
     char * new_app_path;

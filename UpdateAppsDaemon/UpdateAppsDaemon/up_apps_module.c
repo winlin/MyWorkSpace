@@ -7,6 +7,7 @@
 //
 
 #include "include/mit_log_module.h"
+#include "include/mit_data_define.h"
 #include "up_apps_module.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +19,38 @@
 #include <event2/event-config.h>
 
 static struct up_app_info_node *list_head;
+
+MITFuncRetValue update_c_app(struct up_app_info *app_info)
+{
+    MITLog_DetLogEnter
+    int ret = 0;
+    /** check the verson number */
+    
+    /** create the update lock file */
+    
+    /** backup the app */
+    char origin_app_path[MAX_AB_PATH_LEN] = {0};
+    char backup_app_path[MAX_AB_PATH_LEN] = {0};
+    char cmd_str[MAX_AB_PATH_LEN*3]       = {0};
+    snprintf(origin_app_path, MAX_AB_PATH_LEN, "%s%s", app_info->app_path, app_info->app_name);
+    snprintf(backup_app_path, MAX_AB_PATH_LEN, "%s%s", origin_app_path, APP_BACKUP_SUFFIX);
+    snprintf(cmd_str, ,MAX_AB_PATH_LEN*3, "cp -f %s %s", origin_app_path, backup_app_path);
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "cmd_str:%s", cmd_str);
+    
+    if (system(cmd_str) == -1) {
+        MITLog_DetErrPrintf("system():%s failed", cmd_str);
+        return MIT_RETV_FAIL;
+    }
+    /** kill the app */
+    
+    /** replace the app */
+    
+    /** remove the update lock file */
+    
+    /** start the new verson app */
+    
+    MITLog_DetLogExit
+}
 
 void timeout_cb(evutil_socket_t fd, short ev_type, void *data)
 {

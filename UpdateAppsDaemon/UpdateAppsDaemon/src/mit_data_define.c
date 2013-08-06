@@ -354,6 +354,7 @@ long long int get_pid_with_comm(const char *comm)
     int scan_num = fscanf(max_pid_file, "%lld", &sys_max_pid);
     if (scan_num <= 0) {
         MITLog_DetErrPrintf("fscanf() failed");
+        fclose(max_pid_file);
         return app_pid;
     }
 
@@ -387,6 +388,34 @@ long long int get_pid_with_comm(const char *comm)
     return 0;
 }
 
+void get_comm_with_pid(long long int pid, char* app_comm)
+{
+    if (pid < 2) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "pid can't be samller than 2");
+        return;
+    }
+    char app_comm_path[60] = {0};
+    sprintf(app_comm_path, "%s%lld/%s", SYS_PROC_PATH, pid, SYS_APP_COMM_NAME);
+    if ((access(app_comm_path, F_OK)) != 0) {
+        return;
+    }
+    FILE *comm_fp = fopen(app_comm_path, "r");
+    if (comm_fp == NULL) {
+        MITLog_DetErrPrintf("fopen() %s failed", app_comm_path);
+        return;
+    } 
+    int scan_num = fscanf(comm_fp, "%s", app_comm);
+    if (scan_num <= 0) {
+        MITLog_DetErrPrintf("fscanf() %s failed", app_comm_path);
+    } else {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR,
+                         "get pid=%lld app's comm:%s",
+                         pid,
+                         app_comm);
+    }
+    fclose(comm_fp);
+}
+
 MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, const char *content)
 {
     if (strlen(app_name) == 0 ||
@@ -397,7 +426,7 @@ MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, 
     }
     /** create the configure path for the app */
     char file_path[MAX_AB_PATH_LEN] = {0};
-    snprintf(file_path, MAX_AB_PATH_LEN-1, "%s%s", APP_CONF_PATH, app_name);
+    snprintf(file_path, MAX_AB_PATH_LEN, "%s%s", APP_CONF_PATH, app_name);
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "file path:%s", file_path);
     if ((access(file_path, F_OK)) != 0) {
         int ret_t = mkdir(file_path, S_IRWXU|S_IRWXG|S_IRWXO);
@@ -408,7 +437,7 @@ MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, 
     }
     /** save the content into file */
     char tar_file[MAX_AB_PATH_LEN] = {0};
-    snprintf(tar_file, MAX_AB_PATH_LEN-1, "%s/%s", file_path, file_name);
+    snprintf(tar_file, MAX_AB_PATH_LEN, "%s/%s", file_path, file_name);
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "app conf file:%s", tar_file);
 
     FILE *conf_fp = fopen(tar_file, "w");
@@ -426,7 +455,37 @@ MITFuncRetValue save_app_conf_info(const char *app_name, const char *file_name, 
     return MIT_RETV_SUCCESS;
 }
 
-
-
+void get_app_version(const char *app_name, char *ver_str)
+{
+    if (strlen(app_name) == 0) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "paramaters can't be empty");
+        return ;
+    }
+    /** create the configure path for the app */
+    char file_path[MAX_AB_PATH_LEN] = {0};
+    snprintf(file_path, MAX_AB_PATH_LEN, "%s%s/%s", APP_CONF_PATH, app_name, F_NAME_COMM_VERSON);
+    if ((access(file_path, F_OK)) != 0) {
+            MITLog_DetErrPrintf("%s dosen't exist", file_path);
+            return;
+    }
+    /** read the content from file */
+    MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "app conf file:%s", file_path);
+    FILE *conf_fp = fopen(file_path, "w");
+    if (conf_fp == NULL) {
+        MITLog_DetErrPrintf("call fopen() failed:%s", file_path);
+        return ;
+    }
+    
+    int scan_num = fscanf(conf_fp, "%s", ver_str);
+    if (scan_num <= 0) {
+        MITLog_DetErrPrintf("fscanf() %s failed", file_path);
+    } else {
+        MITLog_DetPrintf(MITLOG_LEVEL_COMMON,
+                         "get app:%s verson number:%s",
+                         app_name,
+                         ver_str);
+    }    
+    fclose(conf_fp);
+}
 
 
