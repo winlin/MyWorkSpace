@@ -11,12 +11,16 @@
 
 #include "include/mit_data_define.h"
 
+/** The device update daemon app name */
+#define APP_NAME_UPAPPSD               "update_apps_daemon"
+/** The device update daemon app verson */
+#define VERSION_UPAPPSD                "v1.0.1"
+
 /** 
  * The time interval to check the updated apps' list.
  * Unit is second.
  */
 #define UP_APP_DAEMON_TIME_INTERVAL         3
-
 #define APP_BACKUP_SUFFIX                   ".BAK"
 
 /************* Update App Daemon Struct Definition ***************/
@@ -40,7 +44,7 @@ struct up_app_info {
      * ended with '/'
      */
     char * app_path;
-    /** the path points to NEW app */
+    /** the path points to NEW app inclucde file name */
     char * new_app_path;
     /** the NEW app's verson */
     char * new_version;
