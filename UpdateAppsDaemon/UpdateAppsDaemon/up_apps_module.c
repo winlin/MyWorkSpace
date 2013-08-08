@@ -24,22 +24,19 @@ static struct up_app_info_node *list_head;
 MITFuncRetValue update_c_app(struct up_app_info *app_info)
 {
     MITLog_DetLogEnter
-    int ret = 0;
     /** check the verson number */
     char ver_str[30] = {0};
-    get_app_version(APP_NAME_UPAPPSD, ver_str);
-    if (strlen(ver_str) == 0) {
-        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "get_app_version() failed");
-        return MIT_RETV_FAIL;
+    get_app_version(app_info->app_name, ver_str);
+    if (strlen(ver_str) > 0) {
+        MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "get current installed app version:%s", ver_str);
     }
-    //TODO: compare the verson info to decside whethe to update the app
     
     char path_one[MAX_AB_PATH_LEN] = {0};
     char path_two[MAX_AB_PATH_LEN] = {0};
     char cmd_str[MAX_AB_PATH_LEN*3]       = {0};
     /** create the update lock file */
     snprintf(path_one, MAX_AB_PATH_LEN, "%s%s/%s", APP_CONF_PATH, app_info->app_name, F_NAME_COMM_UPLOCK);
-    snprintf(cmd_str, ,MAX_AB_PATH_LEN*3, "touch %s", path_one);
+    snprintf(cmd_str, MAX_AB_PATH_LEN*3, "touch %s", path_one);
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "create update lock file cmd:%s", cmd_str);
     
     if (system(cmd_str) == -1) {
@@ -75,7 +72,7 @@ MITFuncRetValue update_c_app(struct up_app_info *app_info)
     }
     /** remove the update lock file */
     snprintf(path_one, MAX_AB_PATH_LEN, "%s%s/%s", APP_CONF_PATH, app_info->app_name, F_NAME_COMM_UPLOCK);
-    snprintf(cmd_str, ,MAX_AB_PATH_LEN*3, "rm -f %s", path_one);
+    snprintf(cmd_str ,MAX_AB_PATH_LEN*3, "rm -f %s", path_one);
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "remove update lock file cmd:%s", cmd_str);
     
     if (system(cmd_str) == -1) {
@@ -93,10 +90,15 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void *data)
     MITLog_DetLogEnter
     waitpid(-1, NULL, WNOHANG);
     struct up_app_info_node *iter = list_head;
+    struct up_app_info_node *pre_iter = iter;
     while (iter) {
+        MITFuncRetValue f_ret = MIT_RETV_FAIL;
         switch (iter->app_info.app_type) {
             case UPAPP_TYPE_C:
                 //TODO: realize the update C app
+                if((f_ret = update_c_app(&iter->app_info)) != MIT_RETV_SUCCESS) {
+                    MITLog_DetPrintf(MITLOG_LEVEL_ERROR, "update_c_app() failed");
+                } 
                 break;
             case UPAPP_TYPE_KMODULE:
                 //TODO: realize the update kernel module
@@ -109,6 +111,24 @@ void timeout_cb(evutil_socket_t fd, short ev_type, void *data)
                 break;
         }
         //TODO: if success release the node
+        if (f_ret == MIT_RETV_SUCCESS) {
+            //TODO: send update success package
+            struct up_app_info_node *tmp = iter;
+            if (iter == list_head) {
+                list_head = pre_iter = iter->next_node;
+            } else {
+                pre_iter->next_node = iter->next_node;
+            }
+            iter = iter->next_node;
+            free(tmp->app_info.app_name);
+            free(tmp->app_info.app_path);
+            free(tmp->app_info.new_app_path);
+            free(tmp->app_info.new_version);
+            free(tmp);
+        } else {
+           pre_iter = iter;
+           iter = iter->next_node; 
+        }
     }
     MITLog_DetLogExit
 }
@@ -117,6 +137,32 @@ MITFuncRetValue start_app_update_func(struct up_app_info_node **head)
 {
     MITLog_DetLogEnter
     *head = list_head;
+    
+    /** create a test update app */
+    list_head = calloc(1, sizeof(struct up_app_info_node));
+    if (list_head == NULL) {
+        MITLog_DetErrPrintf("calloc() failed");
+        return MIT_RETV_FAIL;
+    }
+    list_head->app_info.app_type = UPAPP_TYPE_C;
+    list_head->app_info.app_name = strdup("app1");
+    list_head->app_info.app_path = strdup("/data/apps/");
+    list_head->app_info.new_app_path = strdup("/data/app1");
+    list_head->app_info.new_version = strdup("v1.0.3");
+    list_head->next_node = NULL;
+    struct up_app_info_node *sec_node = calloc(1, sizeof(struct up_app_info_node));
+    if (sec_node == NULL) {
+        MITLog_DetErrPrintf("calloc() failed");
+    } else {
+        sec_node->app_info.app_type = UPAPP_TYPE_C;
+        sec_node->app_info.app_name = strdup("app1");
+        sec_node->app_info.app_path = strdup("/data/apps/");
+        sec_node->app_info.new_app_path = strdup("/data/app1");
+        sec_node->app_info.new_version = strdup("v1.0.3");
+        sec_node->next_node = NULL;
+    }
+    list_head->next_node = sec_node;
+    
     MITFuncRetValue func_ret = MIT_RETV_SUCCESS;
     struct event_base *ev_base = event_base_new();
     if (ev_base == NULL) {
@@ -150,8 +196,6 @@ void free_up_app_list(struct up_app_info_node *head)
     while (iter != NULL) {
         free(iter->app_info.app_name);
         free(iter->app_info.app_path);
-        free(iter->app_info.backup_app_path);
-        free(iter->app_info.cur_version);
         free(iter->app_info.new_app_path);
         free(iter->app_info.new_version);
         tmp = iter->next_node;

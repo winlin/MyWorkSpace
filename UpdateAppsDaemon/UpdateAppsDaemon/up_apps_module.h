@@ -48,10 +48,6 @@ struct up_app_info {
     char * new_app_path;
     /** the NEW app's verson */
     char * new_version;
-    /** the current installed app's verson */
-    char * cur_version;
-    /** the installed app's backup app used for rollback */
-    char * backup_app_path;
 };
 
 struct up_app_info_node {

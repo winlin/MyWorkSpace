@@ -470,7 +470,7 @@ void get_app_version(const char *app_name, char *ver_str)
     }
     /** read the content from file */
     MITLog_DetPrintf(MITLOG_LEVEL_COMMON, "app conf file:%s", file_path);
-    FILE *conf_fp = fopen(file_path, "w");
+    FILE *conf_fp = fopen(file_path, "r");
     if (conf_fp == NULL) {
         MITLog_DetErrPrintf("call fopen() failed:%s", file_path);
         return ;
