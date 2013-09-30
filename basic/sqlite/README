@@ -1,0 +1,13 @@
+
+Introduction
+============
+
+This git repository maintains the sqlite **amalgamantion** version.
+
+Merged sqlite version as follows,
+
+- v3.7.17
+- v3.8.00
+
+
+# vim: ft=markdown
